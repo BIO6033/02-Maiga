@@ -1,0 +1,53 @@
+---
+title: "Breast cancer"
+author: "Maiga"
+date: "15/10/2019"
+output: html_document
+---
+```{r}
+library(tidyverse)
+head(Salaries)
+
+
+```
+
+```{r Separation en test et training}
+problem <- Salaries[1,]
+training <- Salaries[-1,]
+```
+
+## Selection de 4 parametres
+```{r}
+training4P <- training #%>% 
+  #gather(class, value,discipline:yrs.service)
+head(training4P)
+```
+
+## Calcul des moyennes de salaires suivant le sex
+```{r}
+statistics <- training4P %>% 
+  group_by(sex, rank) %>% 
+  summarize(mean = mean(salary),
+            sd = sd(salary))
+head(statistics)
+```
+##Utilisation de dnorm
+```{r}
+
+proba_salary <- function(class_name, feature_name, summary, problem){
+  class_feature <- subset(summary,
+    (sex == class_name) & (rank == feature_name)
+    )
+  proba_feature_class <- dnorm(
+    problem[1, feature_name],
+    class_feature$mean,
+    class_feature$sd)
+  return(proba_feature_class)
+}
+
+proba_salary("Male", "Prof", statistics, problem)
+```
+
+
+
+
