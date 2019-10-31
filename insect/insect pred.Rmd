@@ -96,6 +96,13 @@ grid_data <- expand_grid(logX1 = new_logX1,
 
 grid_data$group <- predict(object = model_knn, newdata = as.data.frame(grid_data))
 
+insectSizeMeans %>% 
+  ggplot(aes(x = logX1, y = logvol, color = group, fill = group)) + 
+  #geom_point(data = grid_data, alpha = 0.5)+ 
+  geom_point(alpha = 0.7, pch = 21, color = "black")+ 
+  scale_color_brewer(type = "qual")
+  #scale_fill_brewer(type = "qual")
+
 ```
 
 # Data partition
