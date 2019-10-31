@@ -15,25 +15,25 @@ library(ggplot2)
 library(e1071)
 ```
 
-#data
+# data
 ```{r}
 insectSize = readr::read_tsv("https://raw.githubusercontent.com/shchurch/insect_egg_database_viz/master/data/dataviz_egg_database.csv")
 
 head (insectSize)
 ```
 
-#Columns selection
+# Columns selection
 ```{r}
 insectSizeGroup =insectSize %>% 
   select(logX1,logX2, logvol, group)
 ```
 
-#missing values
+# missing values
 
 ```{r}
 length(which(!complete.cases(insectSizeGroup)))
 ```
-#Proportion
+# Proportion
 ```{r}
 table(insectSizeGroup$group)
 ```
@@ -44,46 +44,46 @@ table(insectSizeGroup$group)
 insectSizeClean <- na.omit(insectSizeGroup)
 length(which(!complete.cases(insectSizeClean)))
 
-head(insectSizeClean)
+#head(insectSizeClean)
 ```
 
 
-#Normalization
+# Normalization
 ```{r}
 scale2 <- function(x) (x - mean(x, na.rm = TRUE)) / sd(x, TRUE)
 insectSizeMeans <- insectSizeClean %>% 
                           mutate_if(is.double, scale2)
-head(insectSizeMeans)
+#head(insectSizeMeans)
 ```
 
-#Trainnin Set
+# Trainnin Set
 ```{r}
 insectSizeTrain <- insectSizeMeans %>%
                   select("logX1",'logX2', "logvol")
 
 
-head(insectSizeTrain)
+#head(insectSizeTrain)
 
 insectSizeLabels <- insectSizeMeans$group
 ```
 
-#Model
+# Model
 ```{r}
 k <- data.frame(k = 5)
 model_knn <- train(x = data.frame(insectSizeTrain),
                    y = insectSizeLabels,
                    method='knn',
                    tuneGrid = k)
-head(model_knn)
+#head(model_knn)
 ```
-#Prediction
+# Prediction
 ```{r}
 newObs <- data.frame(logX1= 0.577,logX2=0.267, logvol= 0.398)
 
 predict(object = model_knn, newdata = newObs)
 ```
 
-#Visualization
+# Visualization
 
 ```{r}
 new_logX1 <- seq(from = min(insectSizeTrain$logX1), to = max(insectSizeTrain$logX1), length.out = 10)
@@ -110,7 +110,7 @@ insectSizeMeans %>%
 set.seed(500) # makes the random selection of rows reproducible
 train <- insectSizeMeans$group %>%
           createDataPartition(p = 0.70, list = FALSE)
-head(train)
+#head(train)
 
 insectSizeTrain2 <- insectSizeMeans[train,]%>%
                         select("logX1",'logX2', "logvol")
@@ -120,22 +120,22 @@ insectSizeTrainTest2 <- insectSizeMeans[-train,]%>%
 insectSizeLabels2 <- insectSizeMeans[train,]$group
                         #select('group')
 
-head(insectSizeLabels2)
+#head(insectSizeLabels2)
 typeof(insectSizeLabels2)
 ```
-#Model from partition
+# Model from partition
 ```{r}
 k <- data.frame(k =5)
 model_knn2 <- train(x = data.frame(insectSizeTrain2),
                    y = insectSizeLabels2,
                    method='knn',
                    tuneGrid = k)
-head(model_knn2)
+#head(model_knn2)
 ```
 #Test samples
 ```{r}
 prediction = predict(object = model_knn2, newdata = insectSizeTrainTest2)
-prediction
+#prediction
 
 
 ```
@@ -150,12 +150,12 @@ comp = insectSizeMeans[-train,]$group
 tableCompare<- factor(comp, levels = as.character(unique(comp)))
 
 typeof(comp)
-head(tableCompare)
+#head(tableCompare)
 ```
 
 
 
-#ConfusionMatrix
+# ConfusionMatrix
 
 ```{r}
 confusionMatrix(prediction,tableCompare)
@@ -163,7 +163,7 @@ confusionMatrix(prediction,tableCompare)
 
 ```
 
-#Cross validation
+# Cross validation
 ```{r}
 trainCross = trainControl(method = 'repeatedcv',
                           number = 10,
@@ -177,9 +177,9 @@ model_knnVal <- train(x = data.frame(insectSizeTrain2),
                    method='knn',
                    tuneGrid = k,
                    trControl = trainCross)
-head(model_knnVal)
+#head(model_knnVal)
 ```
-#Use K=8 for training
+# Use K=8 for training
 
 ```{r}
 k <- data.frame(k =8)
@@ -187,15 +187,15 @@ model_knn3 <- train(x = data.frame(insectSizeTrain2),
                    y = insectSizeLabels2,
                    method='knn',
                    tuneGrid = k)
-head(model_knn3)
+#head(model_knn3)
 ```
-#Test with K=8
+# Test with K=8
 ```{r}
 prediction2 = predict(object = model_knn3, newdata = insectSizeTrainTest2)
-prediction2
+#prediction2
 
 ```
-#Confusion matrix from model K=8
+# Confusion matrix from model K=8
 ```{r}
 confusionMatrix(prediction2,tableCompare)
 ```

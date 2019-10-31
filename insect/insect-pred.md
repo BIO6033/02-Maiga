@@ -14,7 +14,7 @@ library(tidyverse)
 ```
 
 ```
-## -- Attaching packages --------------------------------------- tidyverse 1.2.1 --
+## -- Attaching packages ------------------------------------------------------ tidyverse 1.2.1 --
 ```
 
 ```
@@ -25,7 +25,7 @@ library(tidyverse)
 ```
 
 ```
-## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## -- Conflicts --------------------------------------------------------- tidyverse_conflicts() --
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()
 ```
@@ -54,7 +54,7 @@ library(ggplot2)
 library(e1071)
 ```
 
-#data
+# data
 
 ```r
 insectSize = readr::read_tsv("https://raw.githubusercontent.com/shchurch/insect_egg_database_viz/master/data/dataviz_egg_database.csv")
@@ -110,14 +110,14 @@ head (insectSize)
 ## #   group <chr>
 ```
 
-#Columns selection
+# Columns selection
 
 ```r
 insectSizeGroup =insectSize %>% 
   select(logX1,logX2, logvol, group)
 ```
 
-#missing values
+# missing values
 
 
 ```r
@@ -127,7 +127,7 @@ length(which(!complete.cases(insectSizeGroup)))
 ```
 ## [1] 2453
 ```
-#Proportion
+# Proportion
 
 ```r
 table(insectSizeGroup$group)
@@ -156,70 +156,32 @@ length(which(!complete.cases(insectSizeClean)))
 ```
 
 ```r
-head(insectSizeClean)
-```
-
-```
-## # A tibble: 6 x 4
-##    logX1  logX2  logvol group           
-##    <dbl>  <dbl>   <dbl> <chr>           
-## 1  0.233 -0.229 -0.507  Amphiesmenoptera
-## 2  0.191 -0.228 -0.546  Amphiesmenoptera
-## 3  0.184 -0.246 -0.590  Amphiesmenoptera
-## 4  0.400 -0.107 -0.0956 Amphiesmenoptera
-## 5 -0.187 -0.398 -1.47   Amphiesmenoptera
-## 6 -0.398 -0.523 -1.72   Amphiesmenoptera
+#head(insectSizeClean)
 ```
 
 
-#Normalization
+# Normalization
 
 ```r
 scale2 <- function(x) (x - mean(x, na.rm = TRUE)) / sd(x, TRUE)
 insectSizeMeans <- insectSizeClean %>% 
                           mutate_if(is.double, scale2)
-head(insectSizeMeans)
+#head(insectSizeMeans)
 ```
 
-```
-## # A tibble: 6 x 4
-##    logX1  logX2 logvol group           
-##    <dbl>  <dbl>  <dbl> <chr>           
-## 1  0.578  0.267  0.399 Amphiesmenoptera
-## 2  0.478  0.270  0.365 Amphiesmenoptera
-## 3  0.460  0.226  0.328 Amphiesmenoptera
-## 4  0.979  0.569  0.752 Amphiesmenoptera
-## 5 -0.432 -0.150 -0.427 Amphiesmenoptera
-## 6 -0.939 -0.459 -0.647 Amphiesmenoptera
-```
-
-#Trainnin Set
+# Trainnin Set
 
 ```r
 insectSizeTrain <- insectSizeMeans %>%
                   select("logX1",'logX2', "logvol")
 
 
-head(insectSizeTrain)
-```
+#head(insectSizeTrain)
 
-```
-## # A tibble: 6 x 3
-##    logX1  logX2 logvol
-##    <dbl>  <dbl>  <dbl>
-## 1  0.578  0.267  0.399
-## 2  0.478  0.270  0.365
-## 3  0.460  0.226  0.328
-## 4  0.979  0.569  0.752
-## 5 -0.432 -0.150 -0.427
-## 6 -0.939 -0.459 -0.647
-```
-
-```r
 insectSizeLabels <- insectSizeMeans$group
 ```
 
-#Model
+# Model
 
 ```r
 k <- data.frame(k = 5)
@@ -227,96 +189,9 @@ model_knn <- train(x = data.frame(insectSizeTrain),
                    y = insectSizeLabels,
                    method='knn',
                    tuneGrid = k)
-head(model_knn)
+#head(model_knn)
 ```
-
-```
-## $method
-## [1] "knn"
-## 
-## $modelInfo
-## $modelInfo$label
-## [1] "k-Nearest Neighbors"
-## 
-## $modelInfo$library
-## NULL
-## 
-## $modelInfo$loop
-## NULL
-## 
-## $modelInfo$type
-## [1] "Classification" "Regression"    
-## 
-## $modelInfo$parameters
-##   parameter   class      label
-## 1         k numeric #Neighbors
-## 
-## $modelInfo$grid
-## function(x, y, len = NULL, search = "grid"){
-##                     if(search == "grid") {
-##                       out <- data.frame(k = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0])
-##                     } else {
-##                       by_val <- if(is.factor(y)) length(levels(y)) else 1
-##                       out <- data.frame(k = sample(seq(1, floor(nrow(x)/3), by = by_val), size = len, replace = TRUE))
-##                     }
-##                     out
-##                   }
-## 
-## $modelInfo$fit
-## function(x, y, wts, param, lev, last, classProbs, ...) {
-##                     if(is.factor(y))
-##                     {
-##                       knn3(as.matrix(x), y, k = param$k, ...)
-##                     } else {
-##                       knnreg(as.matrix(x), y, k = param$k, ...)
-##                     }
-##                   }
-## <bytecode: 0x000000001ae94a10>
-## 
-## $modelInfo$predict
-## function(modelFit, newdata, submodels = NULL) {
-##                     if(modelFit$problemType == "Classification")
-##                     {
-##                       out <- predict(modelFit, newdata,  type = "class")
-##                     } else {
-##                       out <- predict(modelFit, newdata)
-##                     }
-##                     out
-##                   }
-## <bytecode: 0x000000001b0878b8>
-## 
-## $modelInfo$predictors
-## function(x, ...) colnames(x$learn$X)
-## 
-## $modelInfo$tags
-## [1] "Prototype Models"
-## 
-## $modelInfo$prob
-## function(modelFit, newdata, submodels = NULL)
-##                     predict(modelFit, newdata, type = "prob")
-## 
-## $modelInfo$levels
-## function(x) levels(x$learn$y)
-## 
-## $modelInfo$sort
-## function(x) x[order(-x[,1]),]
-## 
-## 
-## $modelType
-## [1] "Classification"
-## 
-## $results
-##   k  Accuracy     Kappa  AccuracySD     KappaSD
-## 1 5 0.5253782 0.4329895 0.007560774 0.008821859
-## 
-## $pred
-## NULL
-## 
-## $bestTune
-##   k
-## 1 5
-```
-#Prediction
+# Prediction
 
 ```r
 newObs <- data.frame(logX1= 0.577,logX2=0.267, logvol= 0.398)
@@ -329,7 +204,7 @@ predict(object = model_knn, newdata = newObs)
 ## 9 Levels: Amphiesmenoptera Antliophora Apterygota ... Psocodea
 ```
 
-#Visualization
+# Visualization
 
 
 ```r
@@ -362,20 +237,8 @@ insectSizeMeans %>%
 set.seed(500) # makes the random selection of rows reproducible
 train <- insectSizeMeans$group %>%
           createDataPartition(p = 0.70, list = FALSE)
-head(train)
-```
+#head(train)
 
-```
-##      Resample1
-## [1,]         2
-## [2,]         4
-## [3,]         9
-## [4,]        10
-## [5,]        11
-## [6,]        12
-```
-
-```r
 insectSizeTrain2 <- insectSizeMeans[train,]%>%
                         select("logX1",'logX2', "logvol")
 insectSizeTrainTest2 <- insectSizeMeans[-train,]%>%
@@ -384,22 +247,14 @@ insectSizeTrainTest2 <- insectSizeMeans[-train,]%>%
 insectSizeLabels2 <- insectSizeMeans[train,]$group
                         #select('group')
 
-head(insectSizeLabels2)
-```
-
-```
-## [1] "Amphiesmenoptera" "Amphiesmenoptera" "Amphiesmenoptera"
-## [4] "Amphiesmenoptera" "Amphiesmenoptera" "Amphiesmenoptera"
-```
-
-```r
+#head(insectSizeLabels2)
 typeof(insectSizeLabels2)
 ```
 
 ```
 ## [1] "character"
 ```
-#Model from partition
+# Model from partition
 
 ```r
 k <- data.frame(k =5)
@@ -407,658 +262,13 @@ model_knn2 <- train(x = data.frame(insectSizeTrain2),
                    y = insectSizeLabels2,
                    method='knn',
                    tuneGrid = k)
-head(model_knn2)
-```
-
-```
-## $method
-## [1] "knn"
-## 
-## $modelInfo
-## $modelInfo$label
-## [1] "k-Nearest Neighbors"
-## 
-## $modelInfo$library
-## NULL
-## 
-## $modelInfo$loop
-## NULL
-## 
-## $modelInfo$type
-## [1] "Classification" "Regression"    
-## 
-## $modelInfo$parameters
-##   parameter   class      label
-## 1         k numeric #Neighbors
-## 
-## $modelInfo$grid
-## function(x, y, len = NULL, search = "grid"){
-##                     if(search == "grid") {
-##                       out <- data.frame(k = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0])
-##                     } else {
-##                       by_val <- if(is.factor(y)) length(levels(y)) else 1
-##                       out <- data.frame(k = sample(seq(1, floor(nrow(x)/3), by = by_val), size = len, replace = TRUE))
-##                     }
-##                     out
-##                   }
-## 
-## $modelInfo$fit
-## function(x, y, wts, param, lev, last, classProbs, ...) {
-##                     if(is.factor(y))
-##                     {
-##                       knn3(as.matrix(x), y, k = param$k, ...)
-##                     } else {
-##                       knnreg(as.matrix(x), y, k = param$k, ...)
-##                     }
-##                   }
-## <bytecode: 0x000000001dedc278>
-## 
-## $modelInfo$predict
-## function(modelFit, newdata, submodels = NULL) {
-##                     if(modelFit$problemType == "Classification")
-##                     {
-##                       out <- predict(modelFit, newdata,  type = "class")
-##                     } else {
-##                       out <- predict(modelFit, newdata)
-##                     }
-##                     out
-##                   }
-## <bytecode: 0x000000001b7d3e18>
-## 
-## $modelInfo$predictors
-## function(x, ...) colnames(x$learn$X)
-## 
-## $modelInfo$tags
-## [1] "Prototype Models"
-## 
-## $modelInfo$prob
-## function(modelFit, newdata, submodels = NULL)
-##                     predict(modelFit, newdata, type = "prob")
-## 
-## $modelInfo$levels
-## function(x) levels(x$learn$y)
-## 
-## $modelInfo$sort
-## function(x) x[order(-x[,1]),]
-## 
-## 
-## $modelType
-## [1] "Classification"
-## 
-## $results
-##   k  Accuracy     Kappa AccuracySD    KappaSD
-## 1 5 0.5108502 0.4155547 0.01263492 0.01481557
-## 
-## $pred
-## NULL
-## 
-## $bestTune
-##   k
-## 1 5
+#head(model_knn2)
 ```
 #Test samples
 
 ```r
 prediction = predict(object = model_knn2, newdata = insectSizeTrainTest2)
-prediction
-```
-
-```
-##    [1] Antliophora      Hymenoptera      Amphiesmenoptera Amphiesmenoptera
-##    [5] Neuropteroidea   Palaeoptera      Amphiesmenoptera Amphiesmenoptera
-##    [9] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [13] Amphiesmenoptera Condylognatha    Amphiesmenoptera Condylognatha   
-##   [17] Condylognatha    Neuropteroidea   Neuropteroidea   Amphiesmenoptera
-##   [21] Polyneoptera     Condylognatha    Condylognatha    Amphiesmenoptera
-##   [25] Amphiesmenoptera Amphiesmenoptera Neuropteroidea   Amphiesmenoptera
-##   [29] Amphiesmenoptera Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-##   [33] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-##   [37] Condylognatha    Neuropteroidea   Polyneoptera     Amphiesmenoptera
-##   [41] Amphiesmenoptera Amphiesmenoptera Hymenoptera      Condylognatha   
-##   [45] Neuropteroidea   Condylognatha    Amphiesmenoptera Amphiesmenoptera
-##   [49] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [53] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [57] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [61] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [65] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [69] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [73] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [77] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Hymenoptera     
-##   [81] Condylognatha    Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-##   [85] Polyneoptera     Polyneoptera     Amphiesmenoptera Amphiesmenoptera
-##   [89] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [93] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [97] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [101] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [105] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [109] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [113] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-##  [117] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [121] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-##  [125] Amphiesmenoptera Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-##  [129] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [133] Amphiesmenoptera Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-##  [137] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-##  [141] Condylognatha    Polyneoptera     Polyneoptera     Polyneoptera    
-##  [145] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [149] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Condylognatha   
-##  [153] Condylognatha    Neuropteroidea   Amphiesmenoptera Condylognatha   
-##  [157] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Hymenoptera     
-##  [161] Amphiesmenoptera Condylognatha    Condylognatha    Condylognatha   
-##  [165] Condylognatha    Neuropteroidea   Hymenoptera      Hymenoptera     
-##  [169] Hymenoptera      Antliophora      Neuropteroidea   Polyneoptera    
-##  [173] Polyneoptera     Hymenoptera      Polyneoptera     Polyneoptera    
-##  [177] Hymenoptera      Polyneoptera     Polyneoptera     Polyneoptera    
-##  [181] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [185] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [189] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [193] Polyneoptera     Polyneoptera     Hymenoptera      Polyneoptera    
-##  [197] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [201] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [205] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [209] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [213] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [217] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [221] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [225] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [229] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [233] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [237] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [241] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [245] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [249] Polyneoptera     Hymenoptera      Polyneoptera     Polyneoptera    
-##  [253] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [257] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [261] Condylognatha    Hymenoptera      Hymenoptera      Polyneoptera    
-##  [265] Hymenoptera      Hymenoptera      Hymenoptera      Amphiesmenoptera
-##  [269] Hymenoptera      Polyneoptera     Hymenoptera      Polyneoptera    
-##  [273] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [277] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [281] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [285] Polyneoptera     Neuropteroidea   Polyneoptera     Polyneoptera    
-##  [289] Polyneoptera     Polyneoptera     Condylognatha    Neuropteroidea  
-##  [293] Amphiesmenoptera Neuropteroidea   Palaeoptera      Neuropteroidea  
-##  [297] Condylognatha    Amphiesmenoptera Polyneoptera     Neuropteroidea  
-##  [301] Palaeoptera      Palaeoptera      Polyneoptera     Polyneoptera    
-##  [305] Polyneoptera     Polyneoptera     Neuropteroidea   Polyneoptera    
-##  [309] Polyneoptera     Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [313] Polyneoptera     Amphiesmenoptera Polyneoptera     Polyneoptera    
-##  [317] Psocodea         Polyneoptera     Hymenoptera      Antliophora     
-##  [321] Hymenoptera      Polyneoptera     Polyneoptera     Polyneoptera    
-##  [325] Amphiesmenoptera Condylognatha    Neuropteroidea   Neuropteroidea  
-##  [329] Polyneoptera     Hymenoptera      Neuropteroidea   Condylognatha   
-##  [333] Antliophora      Antliophora      Antliophora      Antliophora     
-##  [337] Condylognatha    Neuropteroidea   Antliophora      Condylognatha   
-##  [341] Hymenoptera      Antliophora      Antliophora      Antliophora     
-##  [345] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [349] Antliophora      Antliophora      Hymenoptera      Hymenoptera     
-##  [353] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-##  [357] Antliophora      Psocodea         Hymenoptera      Antliophora     
-##  [361] Condylognatha    Condylognatha    Hymenoptera      Polyneoptera    
-##  [365] Hymenoptera      Polyneoptera     Hymenoptera      Neuropteroidea  
-##  [369] Antliophora      Antliophora      Hymenoptera      Antliophora     
-##  [373] Condylognatha    Antliophora      Antliophora      Antliophora     
-##  [377] Antliophora      Antliophora      Antliophora      Antliophora     
-##  [381] Condylognatha    Condylognatha    Antliophora      Antliophora     
-##  [385] Antliophora      Antliophora      Antliophora      Antliophora     
-##  [389] Antliophora      Antliophora      Antliophora      Antliophora     
-##  [393] Neuropteroidea   Antliophora      Palaeoptera      Palaeoptera     
-##  [397] Palaeoptera      Antliophora      Hymenoptera      Antliophora     
-##  [401] Antliophora      Antliophora      Hymenoptera      Antliophora     
-##  [405] Antliophora      Antliophora      Palaeoptera      Hymenoptera     
-##  [409] Antliophora      Antliophora      Hymenoptera      Hymenoptera     
-##  [413] Hymenoptera      Hymenoptera      Amphiesmenoptera Hymenoptera     
-##  [417] Condylognatha    Condylognatha    Condylognatha    Condylognatha   
-##  [421] Antliophora      Hymenoptera      Antliophora      Hymenoptera     
-##  [425] Antliophora      Antliophora      Antliophora      Antliophora     
-##  [429] Antliophora      Hymenoptera      Antliophora      Antliophora     
-##  [433] Antliophora      Antliophora      Hymenoptera      Psocodea        
-##  [437] Antliophora      Palaeoptera      Hymenoptera      Palaeoptera     
-##  [441] Palaeoptera      Palaeoptera      Palaeoptera      Palaeoptera     
-##  [445] Palaeoptera      Polyneoptera     Polyneoptera     Palaeoptera     
-##  [449] Amphiesmenoptera Polyneoptera     Palaeoptera      Palaeoptera     
-##  [453] Palaeoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [457] Antliophora      Polyneoptera     Palaeoptera      Hymenoptera     
-##  [461] Palaeoptera      Hymenoptera      Palaeoptera      Palaeoptera     
-##  [465] Antliophora      Palaeoptera      Palaeoptera      Palaeoptera     
-##  [469] Palaeoptera      Antliophora      Hymenoptera      Palaeoptera     
-##  [473] Palaeoptera      Neuropteroidea   Palaeoptera      Palaeoptera     
-##  [477] Palaeoptera      Hymenoptera      Antliophora      Polyneoptera    
-##  [481] Palaeoptera      Polyneoptera     Polyneoptera     Hymenoptera     
-##  [485] Palaeoptera      Palaeoptera      Palaeoptera      Palaeoptera     
-##  [489] Palaeoptera      Palaeoptera      Palaeoptera      Polyneoptera    
-##  [493] Antliophora      Neuropteroidea   Polyneoptera     Neuropteroidea  
-##  [497] Amphiesmenoptera Condylognatha    Hymenoptera      Palaeoptera     
-##  [501] Polyneoptera     Amphiesmenoptera Condylognatha    Neuropteroidea  
-##  [505] Hymenoptera      Amphiesmenoptera Condylognatha    Amphiesmenoptera
-##  [509] Antliophora      Amphiesmenoptera Polyneoptera     Condylognatha   
-##  [513] Condylognatha    Neuropteroidea   Hymenoptera      Hymenoptera     
-##  [517] Neuropteroidea   Condylognatha    Condylognatha    Condylognatha   
-##  [521] Antliophora      Polyneoptera     Amphiesmenoptera Amphiesmenoptera
-##  [525] Antliophora      Neuropteroidea   Antliophora      Hymenoptera     
-##  [529] Antliophora      Neuropteroidea   Neuropteroidea   Condylognatha   
-##  [533] Amphiesmenoptera Antliophora      Hymenoptera      Condylognatha   
-##  [537] Amphiesmenoptera Amphiesmenoptera Neuropteroidea   Condylognatha   
-##  [541] Neuropteroidea   Hymenoptera      Neuropteroidea   Antliophora     
-##  [545] Hymenoptera      Amphiesmenoptera Hymenoptera      Antliophora     
-##  [549] Neuropteroidea   Neuropteroidea   Condylognatha    Hymenoptera     
-##  [553] Amphiesmenoptera Antliophora      Antliophora      Condylognatha   
-##  [557] Condylognatha    Palaeoptera      Condylognatha    Condylognatha   
-##  [561] Neuropteroidea   Neuropteroidea   Condylognatha    Amphiesmenoptera
-##  [565] Amphiesmenoptera Amphiesmenoptera Condylognatha    Condylognatha   
-##  [569] Amphiesmenoptera Condylognatha    Condylognatha    Condylognatha   
-##  [573] Neuropteroidea   Amphiesmenoptera Condylognatha    Condylognatha   
-##  [577] Condylognatha    Amphiesmenoptera Condylognatha    Condylognatha   
-##  [581] Amphiesmenoptera Condylognatha    Condylognatha    Polyneoptera    
-##  [585] Condylognatha    Condylognatha    Condylognatha    Antliophora     
-##  [589] Condylognatha    Antliophora      Condylognatha    Condylognatha   
-##  [593] Neuropteroidea   Neuropteroidea   Neuropteroidea   Hymenoptera     
-##  [597] Antliophora      Neuropteroidea   Neuropteroidea   Hymenoptera     
-##  [601] Condylognatha    Amphiesmenoptera Condylognatha    Antliophora     
-##  [605] Antliophora      Condylognatha    Hymenoptera      Condylognatha   
-##  [609] Hymenoptera      Antliophora      Antliophora      Antliophora     
-##  [613] Palaeoptera      Condylognatha    Psocodea         Condylognatha   
-##  [617] Condylognatha    Condylognatha    Hymenoptera      Hymenoptera     
-##  [621] Hymenoptera      Condylognatha    Antliophora      Antliophora     
-##  [625] Hymenoptera      Condylognatha    Psocodea         Condylognatha   
-##  [629] Condylognatha    Condylognatha    Antliophora      Condylognatha   
-##  [633] Condylognatha    Condylognatha    Antliophora      Condylognatha   
-##  [637] Amphiesmenoptera Hymenoptera      Condylognatha    Condylognatha   
-##  [641] Antliophora      Condylognatha    Polyneoptera     Polyneoptera    
-##  [645] Hymenoptera      Hymenoptera      Condylognatha    Hymenoptera     
-##  [649] Antliophora      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [653] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [657] Hymenoptera      Hymenoptera      Polyneoptera     Hymenoptera     
-##  [661] Hymenoptera      Hymenoptera      Hymenoptera      Antliophora     
-##  [665] Antliophora      Neuropteroidea   Hymenoptera      Hymenoptera     
-##  [669] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-##  [673] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [677] Antliophora      Antliophora      Palaeoptera      Hymenoptera     
-##  [681] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [685] Antliophora      Hymenoptera      Polyneoptera     Hymenoptera     
-##  [689] Condylognatha    Hymenoptera      Hymenoptera      Condylognatha   
-##  [693] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-##  [697] Antliophora      Antliophora      Hymenoptera      Hymenoptera     
-##  [701] Neuropteroidea   Condylognatha    Hymenoptera      Hymenoptera     
-##  [705] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [709] Hymenoptera      Hymenoptera      Hymenoptera      Condylognatha   
-##  [713] Amphiesmenoptera Hymenoptera      Hymenoptera      Condylognatha   
-##  [717] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [721] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [725] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [729] Hymenoptera      Hymenoptera      Antliophora      Condylognatha   
-##  [733] Hymenoptera      Hymenoptera      Hymenoptera      Polyneoptera    
-##  [737] Polyneoptera     Hymenoptera      Polyneoptera     Hymenoptera     
-##  [741] Hymenoptera      Hymenoptera      Hymenoptera      Polyneoptera    
-##  [745] Hymenoptera      Hymenoptera      Condylognatha    Hymenoptera     
-##  [749] Amphiesmenoptera Condylognatha    Condylognatha    Hymenoptera     
-##  [753] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-##  [757] Hymenoptera      Polyneoptera     Polyneoptera     Polyneoptera    
-##  [761] Hymenoptera      Hymenoptera      Hymenoptera      Amphiesmenoptera
-##  [765] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-##  [769] Polyneoptera     Hymenoptera      Hymenoptera      Hymenoptera     
-##  [773] Hymenoptera      Hymenoptera      Polyneoptera     Hymenoptera     
-##  [777] Neuropteroidea   Polyneoptera     Hymenoptera      Condylognatha   
-##  [781] Amphiesmenoptera Amphiesmenoptera Neuropteroidea   Amphiesmenoptera
-##  [785] Amphiesmenoptera Condylognatha    Amphiesmenoptera Amphiesmenoptera
-##  [789] Condylognatha    Amphiesmenoptera Condylognatha    Condylognatha   
-##  [793] Amphiesmenoptera Condylognatha    Condylognatha    Amphiesmenoptera
-##  [797] Palaeoptera      Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [801] Palaeoptera      Condylognatha    Amphiesmenoptera Condylognatha   
-##  [805] Amphiesmenoptera Amphiesmenoptera Condylognatha    Condylognatha   
-##  [809] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [813] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [817] Amphiesmenoptera Neuropteroidea   Amphiesmenoptera Neuropteroidea  
-##  [821] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [825] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [829] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [833] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [837] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Polyneoptera    
-##  [841] Polyneoptera     Antliophora      Amphiesmenoptera Polyneoptera    
-##  [845] Condylognatha    Amphiesmenoptera Amphiesmenoptera Polyneoptera    
-##  [849] Amphiesmenoptera Neuropteroidea   Polyneoptera     Amphiesmenoptera
-##  [853] Condylognatha    Condylognatha    Amphiesmenoptera Amphiesmenoptera
-##  [857] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [861] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [865] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-##  [869] Condylognatha    Neuropteroidea   Neuropteroidea   Polyneoptera    
-##  [873] Amphiesmenoptera Polyneoptera     Hymenoptera      Polyneoptera    
-##  [877] Polyneoptera     Polyneoptera     Condylognatha    Neuropteroidea  
-##  [881] Palaeoptera      Neuropteroidea   Neuropteroidea   Amphiesmenoptera
-##  [885] Condylognatha    Antliophora      Condylognatha    Polyneoptera    
-##  [889] Hymenoptera      Polyneoptera     Hymenoptera      Condylognatha   
-##  [893] Neuropteroidea   Polyneoptera     Polyneoptera     Antliophora     
-##  [897] Condylognatha    Polyneoptera     Hymenoptera      Polyneoptera    
-##  [901] Polyneoptera     Condylognatha    Neuropteroidea   Amphiesmenoptera
-##  [905] Condylognatha    Neuropteroidea   Neuropteroidea   Neuropteroidea  
-##  [909] Antliophora      Neuropteroidea   Neuropteroidea   Condylognatha   
-##  [913] Neuropteroidea   Amphiesmenoptera Neuropteroidea   Hymenoptera     
-##  [917] Hymenoptera      Hymenoptera      Hymenoptera      Neuropteroidea  
-##  [921] Hymenoptera      Antliophora      Condylognatha    Hymenoptera     
-##  [925] Palaeoptera      Neuropteroidea   Neuropteroidea   Condylognatha   
-##  [929] Hymenoptera      Hymenoptera      Hymenoptera      Condylognatha   
-##  [933] Hymenoptera      Hymenoptera      Hymenoptera      Amphiesmenoptera
-##  [937] Hymenoptera      Antliophora      Antliophora      Amphiesmenoptera
-##  [941] Polyneoptera     Hymenoptera      Hymenoptera      Hymenoptera     
-##  [945] Hymenoptera      Hymenoptera      Hymenoptera      Neuropteroidea  
-##  [949] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-##  [953] Antliophora      Hymenoptera      Hymenoptera      Polyneoptera    
-##  [957] Hymenoptera      Condylognatha    Neuropteroidea   Neuropteroidea  
-##  [961] Polyneoptera     Antliophora      Antliophora      Antliophora     
-##  [965] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-##  [969] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [973] Hymenoptera      Neuropteroidea   Hymenoptera      Condylognatha   
-##  [977] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [981] Neuropteroidea   Condylognatha    Antliophora      Hymenoptera     
-##  [985] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [989] Hymenoptera      Hymenoptera      Polyneoptera     Neuropteroidea  
-##  [993] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-##  [997] Amphiesmenoptera Antliophora      Polyneoptera     Hymenoptera     
-## [1001] Antliophora      Polyneoptera     Polyneoptera     Polyneoptera    
-## [1005] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1009] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1013] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1017] Polyneoptera     Polyneoptera     Neuropteroidea   Condylognatha   
-## [1021] Polyneoptera     Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-## [1025] Amphiesmenoptera Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-## [1029] Polyneoptera     Hymenoptera      Hymenoptera      Neuropteroidea  
-## [1033] Condylognatha    Hymenoptera      Hymenoptera      Polyneoptera    
-## [1037] Polyneoptera     Polyneoptera     Hymenoptera      Hymenoptera     
-## [1041] Condylognatha    Hymenoptera      Polyneoptera     Antliophora     
-## [1045] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1049] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1053] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1057] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1061] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1065] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1069] Polyneoptera     Polyneoptera     Polyneoptera     Neuropteroidea  
-## [1073] Polyneoptera     Polyneoptera     Hymenoptera      Hymenoptera     
-## [1077] Hymenoptera      Hymenoptera      Hymenoptera      Condylognatha   
-## [1081] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1085] Hymenoptera      Hymenoptera      Hymenoptera      Antliophora     
-## [1089] Hymenoptera      Antliophora      Polyneoptera     Hymenoptera     
-## [1093] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1097] Condylognatha    Polyneoptera     Polyneoptera     Polyneoptera    
-## [1101] Amphiesmenoptera Hymenoptera      Palaeoptera      Antliophora     
-## [1105] Amphiesmenoptera Antliophora      Condylognatha    Hymenoptera     
-## [1109] Hymenoptera      Condylognatha    Condylognatha    Neuropteroidea  
-## [1113] Condylognatha    Amphiesmenoptera Hymenoptera      Hymenoptera     
-## [1117] Hymenoptera      Polyneoptera     Polyneoptera     Polyneoptera    
-## [1121] Polyneoptera     Hymenoptera      Condylognatha    Antliophora     
-## [1125] Hymenoptera      Condylognatha    Condylognatha    Antliophora     
-## [1129] Polyneoptera     Condylognatha    Hymenoptera      Hymenoptera     
-## [1133] Amphiesmenoptera Palaeoptera      Hymenoptera      Hymenoptera     
-## [1137] Hymenoptera      Amphiesmenoptera Antliophora      Condylognatha   
-## [1141] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1145] Amphiesmenoptera Polyneoptera     Amphiesmenoptera Amphiesmenoptera
-## [1149] Antliophora      Amphiesmenoptera Amphiesmenoptera Polyneoptera    
-## [1153] Condylognatha    Condylognatha    Polyneoptera     Polyneoptera    
-## [1157] Amphiesmenoptera Palaeoptera      Hymenoptera      Polyneoptera    
-## [1161] Antliophora      Antliophora      Antliophora      Antliophora     
-## [1165] Antliophora      Condylognatha    Antliophora      Polyneoptera    
-## [1169] Hymenoptera      Neuropteroidea   Condylognatha    Condylognatha   
-## [1173] Condylognatha    Condylognatha    Condylognatha    Neuropteroidea  
-## [1177] Neuropteroidea   Condylognatha    Neuropteroidea   Condylognatha   
-## [1181] Antliophora      Antliophora      Neuropteroidea   Condylognatha   
-## [1185] Neuropteroidea   Hymenoptera      Hymenoptera      Hymenoptera     
-## [1189] Hymenoptera      Condylognatha    Polyneoptera     Neuropteroidea  
-## [1193] Polyneoptera     Polyneoptera     Condylognatha    Polyneoptera    
-## [1197] Hymenoptera      Hymenoptera      Neuropteroidea   Amphiesmenoptera
-## [1201] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1205] Condylognatha    Amphiesmenoptera Condylognatha    Amphiesmenoptera
-## [1209] Amphiesmenoptera Amphiesmenoptera Polyneoptera     Polyneoptera    
-## [1213] Palaeoptera      Antliophora      Polyneoptera     Polyneoptera    
-## [1217] Polyneoptera     Antliophora      Polyneoptera     Antliophora     
-## [1221] Neuropteroidea   Neuropteroidea   Neuropteroidea   Antliophora     
-## [1225] Hymenoptera      Antliophora      Condylognatha    Hymenoptera     
-## [1229] Amphiesmenoptera Neuropteroidea   Polyneoptera     Amphiesmenoptera
-## [1233] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1237] Neuropteroidea   Amphiesmenoptera Neuropteroidea   Amphiesmenoptera
-## [1241] Neuropteroidea   Polyneoptera     Polyneoptera     Neuropteroidea  
-## [1245] Condylognatha    Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1249] Amphiesmenoptera Condylognatha    Amphiesmenoptera Hymenoptera     
-## [1253] Condylognatha    Condylognatha    Condylognatha    Condylognatha   
-## [1257] Amphiesmenoptera Condylognatha    Condylognatha    Amphiesmenoptera
-## [1261] Amphiesmenoptera Condylognatha    Palaeoptera      Condylognatha   
-## [1265] Condylognatha    Condylognatha    Condylognatha    Amphiesmenoptera
-## [1269] Amphiesmenoptera Condylognatha    Neuropteroidea   Polyneoptera    
-## [1273] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1277] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1281] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1285] Amphiesmenoptera Polyneoptera     Polyneoptera     Polyneoptera    
-## [1289] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1293] Condylognatha    Condylognatha    Polyneoptera     Polyneoptera    
-## [1297] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1301] Polyneoptera     Polyneoptera     Amphiesmenoptera Polyneoptera    
-## [1305] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1309] Polyneoptera     Condylognatha    Amphiesmenoptera Neuropteroidea  
-## [1313] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1317] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1321] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1325] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1329] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1333] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1337] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1341] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1345] Polyneoptera     Polyneoptera     Neuropteroidea   Hymenoptera     
-## [1349] Antliophora      Condylognatha    Condylognatha    Antliophora     
-## [1353] Neuropteroidea   Condylognatha    Hymenoptera      Hymenoptera     
-## [1357] Antliophora      Amphiesmenoptera Neuropteroidea   Neuropteroidea  
-## [1361] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-## [1365] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-## [1369] Antliophora      Hymenoptera      Hymenoptera      Condylognatha   
-## [1373] Condylognatha    Condylognatha    Polyneoptera     Neuropteroidea  
-## [1377] Antliophora      Amphiesmenoptera Polyneoptera     Condylognatha   
-## [1381] Hymenoptera      Antliophora      Hymenoptera      Antliophora     
-## [1385] Amphiesmenoptera Polyneoptera     Antliophora      Hymenoptera     
-## [1389] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-## [1393] Neuropteroidea   Condylognatha    Hymenoptera      Hymenoptera     
-## [1397] Polyneoptera     Condylognatha    Antliophora      Palaeoptera     
-## [1401] Hymenoptera      Hymenoptera      Palaeoptera      Hymenoptera     
-## [1405] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1409] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1413] Hymenoptera      Hymenoptera      Antliophora      Palaeoptera     
-## [1417] Hymenoptera      Antliophora      Condylognatha    Condylognatha   
-## [1421] Condylognatha    Condylognatha    Hymenoptera      Hymenoptera     
-## [1425] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1429] Antliophora      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1433] Hymenoptera      Condylognatha    Hymenoptera      Hymenoptera     
-## [1437] Hymenoptera      Antliophora      Condylognatha    Hymenoptera     
-## [1441] Hymenoptera      Antliophora      Hymenoptera      Neuropteroidea  
-## [1445] Hymenoptera      Hymenoptera      Amphiesmenoptera Amphiesmenoptera
-## [1449] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1453] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1457] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1461] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1465] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1469] Amphiesmenoptera Palaeoptera      Amphiesmenoptera Neuropteroidea  
-## [1473] Hymenoptera      Palaeoptera      Palaeoptera      Hymenoptera     
-## [1477] Hymenoptera      Hymenoptera      Palaeoptera      Hymenoptera     
-## [1481] Condylognatha    Amphiesmenoptera Condylognatha    Neuropteroidea  
-## [1485] Hymenoptera      Antliophora      Hymenoptera      Antliophora     
-## [1489] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1493] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Polyneoptera    
-## [1497] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1501] Hymenoptera      Polyneoptera     Polyneoptera     Amphiesmenoptera
-## [1505] Condylognatha    Condylognatha    Condylognatha    Antliophora     
-## [1509] Hymenoptera      Neuropteroidea   Condylognatha    Antliophora     
-## [1513] Amphiesmenoptera Amphiesmenoptera Antliophora      Neuropteroidea  
-## [1517] Amphiesmenoptera Condylognatha    Amphiesmenoptera Hymenoptera     
-## [1521] Hymenoptera      Condylognatha    Condylognatha    Neuropteroidea  
-## [1525] Condylognatha    Hymenoptera      Amphiesmenoptera Hymenoptera     
-## [1529] Polyneoptera     Neuropteroidea   Neuropteroidea   Neuropteroidea  
-## [1533] Neuropteroidea   Condylognatha    Neuropteroidea   Hymenoptera     
-## [1537] Antliophora      Antliophora      Antliophora      Antliophora     
-## [1541] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-## [1545] Condylognatha    Hymenoptera      Hymenoptera      Polyneoptera    
-## [1549] Hymenoptera      Condylognatha    Neuropteroidea   Amphiesmenoptera
-## [1553] Condylognatha    Condylognatha    Condylognatha    Polyneoptera    
-## [1557] Amphiesmenoptera Neuropteroidea   Antliophora      Polyneoptera    
-## [1561] Amphiesmenoptera Antliophora      Condylognatha    Amphiesmenoptera
-## [1565] Antliophora      Polyneoptera     Palaeoptera      Palaeoptera     
-## [1569] Condylognatha    Antliophora      Condylognatha    Condylognatha   
-## [1573] Polyneoptera     Polyneoptera     Hymenoptera      Antliophora     
-## [1577] Antliophora      Antliophora      Palaeoptera      Antliophora     
-## [1581] Neuropteroidea   Neuropteroidea   Antliophora      Hymenoptera     
-## [1585] Antliophora      Hymenoptera      Antliophora      Condylognatha   
-## [1589] Antliophora      Antliophora      Antliophora      Condylognatha   
-## [1593] Hymenoptera      Antliophora      Antliophora      Condylognatha   
-## [1597] Antliophora      Antliophora      Hymenoptera      Condylognatha   
-## [1601] Condylognatha    Amphiesmenoptera Amphiesmenoptera Palaeoptera     
-## [1605] Condylognatha    Hymenoptera      Hymenoptera      Amphiesmenoptera
-## [1609] Condylognatha    Hymenoptera      Antliophora      Condylognatha   
-## [1613] Antliophora      Antliophora      Hymenoptera      Neuropteroidea  
-## [1617] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-## [1621] Antliophora      Antliophora      Antliophora      Condylognatha   
-## [1625] Hymenoptera      Antliophora      Hymenoptera      Condylognatha   
-## [1629] Antliophora      Neuropteroidea   Hymenoptera      Hymenoptera     
-## [1633] Antliophora      Condylognatha    Hymenoptera      Condylognatha   
-## [1637] Condylognatha    Antliophora      Condylognatha    Antliophora     
-## [1641] Hymenoptera      Antliophora      Condylognatha    Condylognatha   
-## [1645] Amphiesmenoptera Amphiesmenoptera Neuropteroidea   Amphiesmenoptera
-## [1649] Antliophora      Hymenoptera      Condylognatha    Neuropteroidea  
-## [1653] Condylognatha    Condylognatha    Condylognatha    Neuropteroidea  
-## [1657] Neuropteroidea   Neuropteroidea   Amphiesmenoptera Condylognatha   
-## [1661] Hymenoptera      Antliophora      Condylognatha    Neuropteroidea  
-## [1665] Polyneoptera     Polyneoptera     Neuropteroidea   Hymenoptera     
-## [1669] Antliophora      Antliophora      Antliophora      Neuropteroidea  
-## [1673] Condylognatha    Neuropteroidea   Neuropteroidea   Hymenoptera     
-## [1677] Amphiesmenoptera Amphiesmenoptera Hymenoptera      Condylognatha   
-## [1681] Condylognatha    Polyneoptera     Amphiesmenoptera Condylognatha   
-## [1685] Amphiesmenoptera Polyneoptera     Hymenoptera      Condylognatha   
-## [1689] Neuropteroidea   Polyneoptera     Polyneoptera     Neuropteroidea  
-## [1693] Neuropteroidea   Neuropteroidea   Neuropteroidea   Polyneoptera    
-## [1697] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-## [1701] Condylognatha    Neuropteroidea   Antliophora      Amphiesmenoptera
-## [1705] Neuropteroidea   Polyneoptera     Condylognatha    Neuropteroidea  
-## [1709] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Palaeoptera     
-## [1713] Neuropteroidea   Hymenoptera      Amphiesmenoptera Hymenoptera     
-## [1717] Condylognatha    Amphiesmenoptera Polyneoptera     Amphiesmenoptera
-## [1721] Condylognatha    Amphiesmenoptera Neuropteroidea   Amphiesmenoptera
-## [1725] Condylognatha    Neuropteroidea   Neuropteroidea   Polyneoptera    
-## [1729] Amphiesmenoptera Hymenoptera      Antliophora      Palaeoptera     
-## [1733] Antliophora      Antliophora      Polyneoptera     Polyneoptera    
-## [1737] Antliophora      Hymenoptera      Polyneoptera     Antliophora     
-## [1741] Antliophora      Neuropteroidea   Polyneoptera     Condylognatha   
-## [1745] Hymenoptera      Condylognatha    Antliophora      Hymenoptera     
-## [1749] Amphiesmenoptera Neuropteroidea   Amphiesmenoptera Condylognatha   
-## [1753] Hymenoptera      Hymenoptera      Antliophora      Condylognatha   
-## [1757] Antliophora      Amphiesmenoptera Antliophora      Hymenoptera     
-## [1761] Amphiesmenoptera Amphiesmenoptera Neuropteroidea   Neuropteroidea  
-## [1765] Neuropteroidea   Hymenoptera      Condylognatha    Neuropteroidea  
-## [1769] Amphiesmenoptera Polyneoptera     Amphiesmenoptera Polyneoptera    
-## [1773] Amphiesmenoptera Hymenoptera      Antliophora      Condylognatha   
-## [1777] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-## [1781] Condylognatha    Amphiesmenoptera Neuropteroidea   Polyneoptera    
-## [1785] Amphiesmenoptera Amphiesmenoptera Condylognatha    Hymenoptera     
-## [1789] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1793] Amphiesmenoptera Polyneoptera     Amphiesmenoptera Neuropteroidea  
-## [1797] Condylognatha    Amphiesmenoptera Neuropteroidea   Neuropteroidea  
-## [1801] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1805] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1809] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1813] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1817] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-## [1821] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1825] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1829] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1833] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1837] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1841] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1845] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-## [1849] Amphiesmenoptera Amphiesmenoptera Neuropteroidea   Amphiesmenoptera
-## [1853] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1857] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1861] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1865] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1869] Amphiesmenoptera Amphiesmenoptera Polyneoptera     Amphiesmenoptera
-## [1873] Palaeoptera      Amphiesmenoptera Condylognatha    Condylognatha   
-## [1877] Condylognatha    Hymenoptera      Hymenoptera      Polyneoptera    
-## [1881] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1885] Polyneoptera     Neuropteroidea   Polyneoptera     Polyneoptera    
-## [1889] Polyneoptera     Antliophora      Hymenoptera      Amphiesmenoptera
-## [1893] Antliophora      Amphiesmenoptera Neuropteroidea   Condylognatha   
-## [1897] Amphiesmenoptera Condylognatha    Condylognatha    Antliophora     
-## [1901] Condylognatha    Amphiesmenoptera Neuropteroidea   Polyneoptera    
-## [1905] Condylognatha    Condylognatha    Condylognatha    Hymenoptera     
-## [1909] Hymenoptera      Hymenoptera      Neuropteroidea   Hymenoptera     
-## [1913] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-## [1917] Palaeoptera      Condylognatha    Hymenoptera      Condylognatha   
-## [1921] Condylognatha    Amphiesmenoptera Polyneoptera     Hymenoptera     
-## [1925] Condylognatha    Hymenoptera      Neuropteroidea   Hymenoptera     
-## [1929] Neuropteroidea   Condylognatha    Condylognatha    Neuropteroidea  
-## [1933] Hymenoptera      Condylognatha    Polyneoptera     Polyneoptera    
-## [1937] Amphiesmenoptera Amphiesmenoptera Hymenoptera      Amphiesmenoptera
-## [1941] Amphiesmenoptera Amphiesmenoptera Condylognatha    Condylognatha   
-## [1945] Amphiesmenoptera Condylognatha    Condylognatha    Hymenoptera     
-## [1949] Hymenoptera      Condylognatha    Neuropteroidea   Neuropteroidea  
-## [1953] Hymenoptera      Hymenoptera      Condylognatha    Hymenoptera     
-## [1957] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-## [1961] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-## [1965] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-## [1969] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-## [1973] Neuropteroidea   Antliophora      Antliophora      Hymenoptera     
-## [1977] Antliophora      Hymenoptera      Antliophora      Hymenoptera     
-## [1981] Hymenoptera      Hymenoptera      Antliophora      Condylognatha   
-## [1985] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-## [1989] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-## [1993] Palaeoptera      Palaeoptera      Amphiesmenoptera Hymenoptera     
-## [1997] Hymenoptera      Hymenoptera      Condylognatha    Amphiesmenoptera
-## [2001] Neuropteroidea   Amphiesmenoptera Neuropteroidea   Polyneoptera    
-## [2005] Polyneoptera     Neuropteroidea   Neuropteroidea   Amphiesmenoptera
-## [2009] Neuropteroidea   Hymenoptera      Hymenoptera      Hymenoptera     
-## [2013] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-## [2017] Polyneoptera     Condylognatha    Hymenoptera      Hymenoptera     
-## [2021] Amphiesmenoptera Hymenoptera      Amphiesmenoptera Hymenoptera     
-## [2025] Hymenoptera      Neuropteroidea   Antliophora      Amphiesmenoptera
-## [2029] Condylognatha    Antliophora      Hymenoptera      Hymenoptera     
-## [2033] Neuropteroidea   Hymenoptera      Hymenoptera      Antliophora     
-## [2037] Polyneoptera     Polyneoptera     Hymenoptera      Hymenoptera     
-## [2041] Hymenoptera      Hymenoptera      Hymenoptera      Polyneoptera    
-## [2045] Amphiesmenoptera Polyneoptera     Hymenoptera      Antliophora     
-## [2049] Hymenoptera      Condylognatha    Amphiesmenoptera Condylognatha   
-## [2053] Condylognatha    Condylognatha    Hymenoptera      Polyneoptera    
-## [2057] Hymenoptera      Hymenoptera      Hymenoptera      Amphiesmenoptera
-## [2061] Palaeoptera      Hymenoptera      Polyneoptera     Polyneoptera    
-## [2065] Polyneoptera     Hymenoptera      Hymenoptera      Hymenoptera     
-## [2069] Condylognatha    Hymenoptera      Antliophora      Hymenoptera     
-## [2073] Hymenoptera      Polyneoptera     Antliophora      Neuropteroidea  
-## [2077] Hymenoptera      Hymenoptera      Hymenoptera      Antliophora     
-## [2081] Condylognatha    Hymenoptera      Hymenoptera      Palaeoptera     
-## [2085] Palaeoptera      Hymenoptera      Amphiesmenoptera Amphiesmenoptera
-## [2089] Condylognatha    Condylognatha    Neuropteroidea   Amphiesmenoptera
-## [2093] Neuropteroidea   Condylognatha    Antliophora      Polyneoptera    
-## [2097] Condylognatha    Polyneoptera     Hymenoptera      Amphiesmenoptera
-## [2101] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2105] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-## [2109] Amphiesmenoptera Antliophora      Hymenoptera      Condylognatha   
-## [2113] Antliophora      Amphiesmenoptera Condylognatha    Amphiesmenoptera
-## [2117] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [2121] Polyneoptera     Hymenoptera      Amphiesmenoptera Amphiesmenoptera
-## [2125] Polyneoptera     Condylognatha    Amphiesmenoptera Condylognatha   
-## [2129] Amphiesmenoptera Amphiesmenoptera Neuropteroidea   Condylognatha   
-## [2133] Neuropteroidea   Antliophora      Condylognatha    Antliophora     
-## [2137] Amphiesmenoptera Neuropteroidea   Hymenoptera      Condylognatha   
-## [2141] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [2145] Hymenoptera      Hymenoptera      Polyneoptera     Polyneoptera    
-## [2149] Condylognatha    Condylognatha    Antliophora      Hymenoptera     
-## [2153] Hymenoptera      Hymenoptera      Amphiesmenoptera Amphiesmenoptera
-## [2157] Amphiesmenoptera Condylognatha    Polyneoptera     Hymenoptera     
-## [2161] Polyneoptera     Amphiesmenoptera Neuropteroidea   Hymenoptera     
-## [2165] Palaeoptera      Hymenoptera      Hymenoptera      Antliophora     
-## [2169] Condylognatha    Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-## [2173] Hymenoptera      Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-## [2177] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2181] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2185] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2189] Amphiesmenoptera Amphiesmenoptera Hymenoptera      Condylognatha   
-## [2193] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2197] Palaeoptera      Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2201] Antliophora      Hymenoptera      Condylognatha    Antliophora     
-## [2205] Hymenoptera      Hymenoptera      Hymenoptera      Neuropteroidea  
-## [2209] Polyneoptera     Antliophora      Antliophora      Amphiesmenoptera
-## [2213] Antliophora      Antliophora      Antliophora     
-## 9 Levels: Amphiesmenoptera Antliophora Apterygota ... Psocodea
+#prediction
 ```
 
 #insectSizeMeans into numeric
@@ -1078,18 +288,12 @@ typeof(comp)
 ```
 
 ```r
-head(tableCompare)
-```
-
-```
-## [1] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [5] Amphiesmenoptera Amphiesmenoptera
-## 9 Levels: Amphiesmenoptera Polyneoptera Antliophora ... Apterygota
+#head(tableCompare)
 ```
 
 
 
-#ConfusionMatrix
+# ConfusionMatrix
 
 
 ```r
@@ -1198,7 +402,7 @@ confusionMatrix(prediction,tableCompare)
 ## Balanced Accuracy             0.500000
 ```
 
-#Cross validation
+# Cross validation
 
 ```r
 trainCross = trainControl(method = 'repeatedcv',
@@ -1213,103 +417,9 @@ model_knnVal <- train(x = data.frame(insectSizeTrain2),
                    method='knn',
                    tuneGrid = k,
                    trControl = trainCross)
-head(model_knnVal)
+#head(model_knnVal)
 ```
-
-```
-## $method
-## [1] "knn"
-## 
-## $modelInfo
-## $modelInfo$label
-## [1] "k-Nearest Neighbors"
-## 
-## $modelInfo$library
-## NULL
-## 
-## $modelInfo$loop
-## NULL
-## 
-## $modelInfo$type
-## [1] "Classification" "Regression"    
-## 
-## $modelInfo$parameters
-##   parameter   class      label
-## 1         k numeric #Neighbors
-## 
-## $modelInfo$grid
-## function(x, y, len = NULL, search = "grid"){
-##                     if(search == "grid") {
-##                       out <- data.frame(k = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0])
-##                     } else {
-##                       by_val <- if(is.factor(y)) length(levels(y)) else 1
-##                       out <- data.frame(k = sample(seq(1, floor(nrow(x)/3), by = by_val), size = len, replace = TRUE))
-##                     }
-##                     out
-##                   }
-## 
-## $modelInfo$fit
-## function(x, y, wts, param, lev, last, classProbs, ...) {
-##                     if(is.factor(y))
-##                     {
-##                       knn3(as.matrix(x), y, k = param$k, ...)
-##                     } else {
-##                       knnreg(as.matrix(x), y, k = param$k, ...)
-##                     }
-##                   }
-## <bytecode: 0x000000001ac0e8c0>
-## 
-## $modelInfo$predict
-## function(modelFit, newdata, submodels = NULL) {
-##                     if(modelFit$problemType == "Classification")
-##                     {
-##                       out <- predict(modelFit, newdata,  type = "class")
-##                     } else {
-##                       out <- predict(modelFit, newdata)
-##                     }
-##                     out
-##                   }
-## <bytecode: 0x000000001a630a80>
-## 
-## $modelInfo$predictors
-## function(x, ...) colnames(x$learn$X)
-## 
-## $modelInfo$tags
-## [1] "Prototype Models"
-## 
-## $modelInfo$prob
-## function(modelFit, newdata, submodels = NULL)
-##                     predict(modelFit, newdata, type = "prob")
-## 
-## $modelInfo$levels
-## function(x) levels(x$learn$y)
-## 
-## $modelInfo$sort
-## function(x) x[order(-x[,1]),]
-## 
-## 
-## $modelType
-## [1] "Classification"
-## 
-## $results
-##    k  Accuracy     Kappa AccuracySD    KappaSD
-## 1  3 0.5253977 0.4333623 0.01855269 0.02137676
-## 2  4 0.5358102 0.4448551 0.01771813 0.02080216
-## 3  5 0.5423963 0.4526794 0.02242939 0.02606702
-## 4  6 0.5450741 0.4558574 0.01845411 0.02169558
-## 5  7 0.5421828 0.4517944 0.02021296 0.02362046
-## 6  8 0.5549228 0.4667896 0.01957966 0.02308748
-## 7  9 0.5522245 0.4634951 0.01906210 0.02239982
-## 8 10 0.5535710 0.4649551 0.02411506 0.02815625
-## 
-## $pred
-## NULL
-## 
-## $bestTune
-##   k
-## 6 8
-```
-#Use K=8 for training
+# Use K=8 for training
 
 
 ```r
@@ -1318,660 +428,15 @@ model_knn3 <- train(x = data.frame(insectSizeTrain2),
                    y = insectSizeLabels2,
                    method='knn',
                    tuneGrid = k)
-head(model_knn3)
+#head(model_knn3)
 ```
-
-```
-## $method
-## [1] "knn"
-## 
-## $modelInfo
-## $modelInfo$label
-## [1] "k-Nearest Neighbors"
-## 
-## $modelInfo$library
-## NULL
-## 
-## $modelInfo$loop
-## NULL
-## 
-## $modelInfo$type
-## [1] "Classification" "Regression"    
-## 
-## $modelInfo$parameters
-##   parameter   class      label
-## 1         k numeric #Neighbors
-## 
-## $modelInfo$grid
-## function(x, y, len = NULL, search = "grid"){
-##                     if(search == "grid") {
-##                       out <- data.frame(k = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0])
-##                     } else {
-##                       by_val <- if(is.factor(y)) length(levels(y)) else 1
-##                       out <- data.frame(k = sample(seq(1, floor(nrow(x)/3), by = by_val), size = len, replace = TRUE))
-##                     }
-##                     out
-##                   }
-## 
-## $modelInfo$fit
-## function(x, y, wts, param, lev, last, classProbs, ...) {
-##                     if(is.factor(y))
-##                     {
-##                       knn3(as.matrix(x), y, k = param$k, ...)
-##                     } else {
-##                       knnreg(as.matrix(x), y, k = param$k, ...)
-##                     }
-##                   }
-## <bytecode: 0x000000001a987168>
-## 
-## $modelInfo$predict
-## function(modelFit, newdata, submodels = NULL) {
-##                     if(modelFit$problemType == "Classification")
-##                     {
-##                       out <- predict(modelFit, newdata,  type = "class")
-##                     } else {
-##                       out <- predict(modelFit, newdata)
-##                     }
-##                     out
-##                   }
-## <bytecode: 0x000000001d2c39c0>
-## 
-## $modelInfo$predictors
-## function(x, ...) colnames(x$learn$X)
-## 
-## $modelInfo$tags
-## [1] "Prototype Models"
-## 
-## $modelInfo$prob
-## function(modelFit, newdata, submodels = NULL)
-##                     predict(modelFit, newdata, type = "prob")
-## 
-## $modelInfo$levels
-## function(x) levels(x$learn$y)
-## 
-## $modelInfo$sort
-## function(x) x[order(-x[,1]),]
-## 
-## 
-## $modelType
-## [1] "Classification"
-## 
-## $results
-##   k  Accuracy     Kappa  AccuracySD    KappaSD
-## 1 8 0.5302296 0.4380846 0.009304374 0.01082189
-## 
-## $pred
-## NULL
-## 
-## $bestTune
-##   k
-## 1 8
-```
-#Test with K=8
+# Test with K=8
 
 ```r
 prediction2 = predict(object = model_knn3, newdata = insectSizeTrainTest2)
-prediction2
+#prediction2
 ```
-
-```
-##    [1] Hymenoptera      Hymenoptera      Amphiesmenoptera Amphiesmenoptera
-##    [5] Amphiesmenoptera Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-##    [9] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [13] Amphiesmenoptera Condylognatha    Amphiesmenoptera Condylognatha   
-##   [17] Condylognatha    Neuropteroidea   Neuropteroidea   Amphiesmenoptera
-##   [21] Polyneoptera     Condylognatha    Condylognatha    Neuropteroidea  
-##   [25] Amphiesmenoptera Condylognatha    Neuropteroidea   Amphiesmenoptera
-##   [29] Amphiesmenoptera Hymenoptera      Amphiesmenoptera Amphiesmenoptera
-##   [33] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-##   [37] Condylognatha    Hymenoptera      Polyneoptera     Amphiesmenoptera
-##   [41] Amphiesmenoptera Amphiesmenoptera Hymenoptera      Amphiesmenoptera
-##   [45] Neuropteroidea   Condylognatha    Amphiesmenoptera Amphiesmenoptera
-##   [49] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [53] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [57] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [61] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [65] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [69] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [73] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-##   [77] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Hymenoptera     
-##   [81] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [85] Polyneoptera     Polyneoptera     Amphiesmenoptera Amphiesmenoptera
-##   [89] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [93] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##   [97] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [101] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [105] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [109] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [113] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [117] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [121] Amphiesmenoptera Amphiesmenoptera Condylognatha    Neuropteroidea  
-##  [125] Amphiesmenoptera Polyneoptera     Amphiesmenoptera Amphiesmenoptera
-##  [129] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [133] Amphiesmenoptera Condylognatha    Amphiesmenoptera Amphiesmenoptera
-##  [137] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-##  [141] Condylognatha    Polyneoptera     Polyneoptera     Polyneoptera    
-##  [145] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [149] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Condylognatha   
-##  [153] Condylognatha    Neuropteroidea   Amphiesmenoptera Condylognatha   
-##  [157] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Hymenoptera     
-##  [161] Amphiesmenoptera Condylognatha    Condylognatha    Condylognatha   
-##  [165] Condylognatha    Neuropteroidea   Amphiesmenoptera Hymenoptera     
-##  [169] Hymenoptera      Condylognatha    Neuropteroidea   Polyneoptera    
-##  [173] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [177] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [181] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [185] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [189] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [193] Polyneoptera     Polyneoptera     Hymenoptera      Polyneoptera    
-##  [197] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [201] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [205] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [209] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [213] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [217] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [221] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [225] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [229] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [233] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [237] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [241] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [245] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [249] Polyneoptera     Hymenoptera      Polyneoptera     Polyneoptera    
-##  [253] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [257] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [261] Polyneoptera     Hymenoptera      Hymenoptera      Polyneoptera    
-##  [265] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [269] Neuropteroidea   Polyneoptera     Hymenoptera      Polyneoptera    
-##  [273] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [277] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [281] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-##  [285] Polyneoptera     Neuropteroidea   Polyneoptera     Polyneoptera    
-##  [289] Polyneoptera     Polyneoptera     Condylognatha    Neuropteroidea  
-##  [293] Amphiesmenoptera Condylognatha    Palaeoptera      Neuropteroidea  
-##  [297] Condylognatha    Amphiesmenoptera Condylognatha    Palaeoptera     
-##  [301] Palaeoptera      Palaeoptera      Polyneoptera     Polyneoptera    
-##  [305] Polyneoptera     Polyneoptera     Neuropteroidea   Polyneoptera    
-##  [309] Polyneoptera     Amphiesmenoptera Antliophora      Amphiesmenoptera
-##  [313] Polyneoptera     Amphiesmenoptera Polyneoptera     Polyneoptera    
-##  [317] Condylognatha    Neuropteroidea   Condylognatha    Antliophora     
-##  [321] Condylognatha    Polyneoptera     Polyneoptera     Polyneoptera    
-##  [325] Amphiesmenoptera Condylognatha    Neuropteroidea   Antliophora     
-##  [329] Polyneoptera     Hymenoptera      Hymenoptera      Condylognatha   
-##  [333] Antliophora      Antliophora      Antliophora      Neuropteroidea  
-##  [337] Antliophora      Condylognatha    Condylognatha    Condylognatha   
-##  [341] Hymenoptera      Antliophora      Antliophora      Hymenoptera     
-##  [345] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [349] Hymenoptera      Antliophora      Antliophora      Hymenoptera     
-##  [353] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-##  [357] Antliophora      Amphiesmenoptera Hymenoptera      Antliophora     
-##  [361] Condylognatha    Neuropteroidea   Hymenoptera      Polyneoptera    
-##  [365] Hymenoptera      Polyneoptera     Hymenoptera      Hymenoptera     
-##  [369] Antliophora      Antliophora      Hymenoptera      Antliophora     
-##  [373] Antliophora      Antliophora      Antliophora      Antliophora     
-##  [377] Antliophora      Antliophora      Antliophora      Antliophora     
-##  [381] Condylognatha    Condylognatha    Antliophora      Antliophora     
-##  [385] Antliophora      Antliophora      Antliophora      Antliophora     
-##  [389] Antliophora      Antliophora      Antliophora      Antliophora     
-##  [393] Neuropteroidea   Antliophora      Palaeoptera      Palaeoptera     
-##  [397] Palaeoptera      Antliophora      Hymenoptera      Antliophora     
-##  [401] Antliophora      Antliophora      Hymenoptera      Antliophora     
-##  [405] Antliophora      Hymenoptera      Palaeoptera      Hymenoptera     
-##  [409] Antliophora      Antliophora      Hymenoptera      Hymenoptera     
-##  [413] Hymenoptera      Hymenoptera      Condylognatha    Hymenoptera     
-##  [417] Condylognatha    Condylognatha    Antliophora      Antliophora     
-##  [421] Antliophora      Hymenoptera      Antliophora      Hymenoptera     
-##  [425] Antliophora      Antliophora      Antliophora      Antliophora     
-##  [429] Hymenoptera      Hymenoptera      Hymenoptera      Antliophora     
-##  [433] Hymenoptera      Antliophora      Palaeoptera      Psocodea        
-##  [437] Antliophora      Palaeoptera      Hymenoptera      Palaeoptera     
-##  [441] Palaeoptera      Palaeoptera      Palaeoptera      Hymenoptera     
-##  [445] Palaeoptera      Polyneoptera     Polyneoptera     Palaeoptera     
-##  [449] Polyneoptera     Polyneoptera     Palaeoptera      Palaeoptera     
-##  [453] Palaeoptera      Hymenoptera      Hymenoptera      Palaeoptera     
-##  [457] Palaeoptera      Polyneoptera     Palaeoptera      Palaeoptera     
-##  [461] Palaeoptera      Hymenoptera      Palaeoptera      Palaeoptera     
-##  [465] Antliophora      Palaeoptera      Palaeoptera      Palaeoptera     
-##  [469] Palaeoptera      Antliophora      Hymenoptera      Palaeoptera     
-##  [473] Palaeoptera      Palaeoptera      Palaeoptera      Palaeoptera     
-##  [477] Polyneoptera     Hymenoptera      Antliophora      Amphiesmenoptera
-##  [481] Palaeoptera      Polyneoptera     Polyneoptera     Hymenoptera     
-##  [485] Palaeoptera      Palaeoptera      Palaeoptera      Palaeoptera     
-##  [489] Palaeoptera      Palaeoptera      Palaeoptera      Polyneoptera    
-##  [493] Hymenoptera      Neuropteroidea   Polyneoptera     Neuropteroidea  
-##  [497] Amphiesmenoptera Condylognatha    Hymenoptera      Palaeoptera     
-##  [501] Condylognatha    Amphiesmenoptera Condylognatha    Neuropteroidea  
-##  [505] Hymenoptera      Amphiesmenoptera Condylognatha    Amphiesmenoptera
-##  [509] Antliophora      Amphiesmenoptera Polyneoptera     Condylognatha   
-##  [513] Condylognatha    Condylognatha    Hymenoptera      Hymenoptera     
-##  [517] Neuropteroidea   Amphiesmenoptera Condylognatha    Amphiesmenoptera
-##  [521] Antliophora      Polyneoptera     Amphiesmenoptera Condylognatha   
-##  [525] Antliophora      Neuropteroidea   Antliophora      Antliophora     
-##  [529] Antliophora      Neuropteroidea   Neuropteroidea   Condylognatha   
-##  [533] Amphiesmenoptera Hymenoptera      Condylognatha    Neuropteroidea  
-##  [537] Neuropteroidea   Amphiesmenoptera Condylognatha    Amphiesmenoptera
-##  [541] Neuropteroidea   Hymenoptera      Neuropteroidea   Antliophora     
-##  [545] Hymenoptera      Condylognatha    Hymenoptera      Antliophora     
-##  [549] Neuropteroidea   Neuropteroidea   Hymenoptera      Hymenoptera     
-##  [553] Neuropteroidea   Antliophora      Antliophora      Condylognatha   
-##  [557] Condylognatha    Hymenoptera      Hymenoptera      Condylognatha   
-##  [561] Neuropteroidea   Neuropteroidea   Condylognatha    Amphiesmenoptera
-##  [565] Condylognatha    Amphiesmenoptera Condylognatha    Condylognatha   
-##  [569] Condylognatha    Condylognatha    Condylognatha    Condylognatha   
-##  [573] Neuropteroidea   Amphiesmenoptera Condylognatha    Condylognatha   
-##  [577] Condylognatha    Amphiesmenoptera Amphiesmenoptera Condylognatha   
-##  [581] Amphiesmenoptera Condylognatha    Condylognatha    Polyneoptera    
-##  [585] Condylognatha    Neuropteroidea   Condylognatha    Hymenoptera     
-##  [589] Condylognatha    Antliophora      Condylognatha    Condylognatha   
-##  [593] Condylognatha    Neuropteroidea   Neuropteroidea   Hymenoptera     
-##  [597] Condylognatha    Neuropteroidea   Neuropteroidea   Hymenoptera     
-##  [601] Hymenoptera      Amphiesmenoptera Condylognatha    Antliophora     
-##  [605] Antliophora      Condylognatha    Hymenoptera      Condylognatha   
-##  [609] Hymenoptera      Polyneoptera     Hymenoptera      Palaeoptera     
-##  [613] Palaeoptera      Condylognatha    Condylognatha    Hymenoptera     
-##  [617] Condylognatha    Condylognatha    Hymenoptera      Condylognatha   
-##  [621] Hymenoptera      Condylognatha    Condylognatha    Antliophora     
-##  [625] Hymenoptera      Condylognatha    Condylognatha    Condylognatha   
-##  [629] Condylognatha    Condylognatha    Condylognatha    Condylognatha   
-##  [633] Condylognatha    Hymenoptera      Antliophora      Hymenoptera     
-##  [637] Condylognatha    Condylognatha    Condylognatha    Condylognatha   
-##  [641] Hymenoptera      Condylognatha    Polyneoptera     Palaeoptera     
-##  [645] Hymenoptera      Hymenoptera      Condylognatha    Palaeoptera     
-##  [649] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-##  [653] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [657] Polyneoptera     Hymenoptera      Polyneoptera     Hymenoptera     
-##  [661] Antliophora      Hymenoptera      Hymenoptera      Antliophora     
-##  [665] Hymenoptera      Polyneoptera     Hymenoptera      Hymenoptera     
-##  [669] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [673] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [677] Hymenoptera      Antliophora      Palaeoptera      Antliophora     
-##  [681] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [685] Antliophora      Hymenoptera      Polyneoptera     Antliophora     
-##  [689] Condylognatha    Hymenoptera      Hymenoptera      Condylognatha   
-##  [693] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-##  [697] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-##  [701] Hymenoptera      Condylognatha    Hymenoptera      Antliophora     
-##  [705] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [709] Hymenoptera      Hymenoptera      Hymenoptera      Condylognatha   
-##  [713] Neuropteroidea   Hymenoptera      Antliophora      Condylognatha   
-##  [717] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [721] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [725] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [729] Antliophora      Neuropteroidea   Palaeoptera      Condylognatha   
-##  [733] Hymenoptera      Condylognatha    Hymenoptera      Polyneoptera    
-##  [737] Polyneoptera     Hymenoptera      Polyneoptera     Polyneoptera    
-##  [741] Polyneoptera     Hymenoptera      Hymenoptera      Polyneoptera    
-##  [745] Hymenoptera      Hymenoptera      Condylognatha    Hymenoptera     
-##  [749] Condylognatha    Condylognatha    Condylognatha    Condylognatha   
-##  [753] Condylognatha    Antliophora      Hymenoptera      Hymenoptera     
-##  [757] Hymenoptera      Polyneoptera     Polyneoptera     Polyneoptera    
-##  [761] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [765] Condylognatha    Antliophora      Hymenoptera      Hymenoptera     
-##  [769] Polyneoptera     Hymenoptera      Hymenoptera      Hymenoptera     
-##  [773] Hymenoptera      Hymenoptera      Polyneoptera     Hymenoptera     
-##  [777] Polyneoptera     Polyneoptera     Antliophora      Condylognatha   
-##  [781] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [785] Amphiesmenoptera Condylognatha    Amphiesmenoptera Amphiesmenoptera
-##  [789] Condylognatha    Amphiesmenoptera Amphiesmenoptera Condylognatha   
-##  [793] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-##  [797] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [801] Palaeoptera      Condylognatha    Amphiesmenoptera Condylognatha   
-##  [805] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-##  [809] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [813] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [817] Amphiesmenoptera Neuropteroidea   Condylognatha    Neuropteroidea  
-##  [821] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [825] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [829] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [833] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [837] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [841] Polyneoptera     Condylognatha    Amphiesmenoptera Polyneoptera    
-##  [845] Condylognatha    Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [849] Amphiesmenoptera Neuropteroidea   Polyneoptera     Amphiesmenoptera
-##  [853] Amphiesmenoptera Condylognatha    Amphiesmenoptera Amphiesmenoptera
-##  [857] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [861] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-##  [865] Amphiesmenoptera Amphiesmenoptera Condylognatha    Neuropteroidea  
-##  [869] Neuropteroidea   Palaeoptera      Neuropteroidea   Polyneoptera    
-##  [873] Amphiesmenoptera Polyneoptera     Hymenoptera      Polyneoptera    
-##  [877] Neuropteroidea   Polyneoptera     Condylognatha    Neuropteroidea  
-##  [881] Palaeoptera      Condylognatha    Amphiesmenoptera Amphiesmenoptera
-##  [885] Condylognatha    Condylognatha    Condylognatha    Polyneoptera    
-##  [889] Hymenoptera      Condylognatha    Hymenoptera      Condylognatha   
-##  [893] Hymenoptera      Polyneoptera     Polyneoptera     Antliophora     
-##  [897] Hymenoptera      Polyneoptera     Polyneoptera     Polyneoptera    
-##  [901] Amphiesmenoptera Condylognatha    Neuropteroidea   Amphiesmenoptera
-##  [905] Condylognatha    Neuropteroidea   Neuropteroidea   Neuropteroidea  
-##  [909] Neuropteroidea   Neuropteroidea   Neuropteroidea   Condylognatha   
-##  [913] Neuropteroidea   Amphiesmenoptera Neuropteroidea   Hymenoptera     
-##  [917] Hymenoptera      Hymenoptera      Hymenoptera      Polyneoptera    
-##  [921] Condylognatha    Antliophora      Antliophora      Hymenoptera     
-##  [925] Palaeoptera      Neuropteroidea   Hymenoptera      Condylognatha   
-##  [929] Hymenoptera      Hymenoptera      Hymenoptera      Condylognatha   
-##  [933] Hymenoptera      Hymenoptera      Hymenoptera      Antliophora     
-##  [937] Hymenoptera      Antliophora      Antliophora      Palaeoptera     
-##  [941] Polyneoptera     Hymenoptera      Hymenoptera      Hymenoptera     
-##  [945] Hymenoptera      Hymenoptera      Hymenoptera      Neuropteroidea  
-##  [949] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-##  [953] Antliophora      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [957] Hymenoptera      Condylognatha    Neuropteroidea   Hymenoptera     
-##  [961] Polyneoptera     Antliophora      Antliophora      Hymenoptera     
-##  [965] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-##  [969] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [973] Hymenoptera      Hymenoptera      Polyneoptera     Condylognatha   
-##  [977] Hymenoptera      Palaeoptera      Hymenoptera      Hymenoptera     
-##  [981] Hymenoptera      Condylognatha    Antliophora      Hymenoptera     
-##  [985] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-##  [989] Hymenoptera      Hymenoptera      Polyneoptera     Neuropteroidea  
-##  [993] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-##  [997] Amphiesmenoptera Antliophora      Polyneoptera     Condylognatha   
-## [1001] Antliophora      Polyneoptera     Polyneoptera     Polyneoptera    
-## [1005] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1009] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1013] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1017] Polyneoptera     Polyneoptera     Neuropteroidea   Condylognatha   
-## [1021] Polyneoptera     Polyneoptera     Amphiesmenoptera Amphiesmenoptera
-## [1025] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1029] Polyneoptera     Hymenoptera      Hymenoptera      Neuropteroidea  
-## [1033] Polyneoptera     Hymenoptera      Hymenoptera      Polyneoptera    
-## [1037] Polyneoptera     Polyneoptera     Hymenoptera      Hymenoptera     
-## [1041] Condylognatha    Hymenoptera      Polyneoptera     Antliophora     
-## [1045] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1049] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1053] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1057] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1061] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1065] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1069] Polyneoptera     Polyneoptera     Polyneoptera     Neuropteroidea  
-## [1073] Polyneoptera     Polyneoptera     Hymenoptera      Hymenoptera     
-## [1077] Hymenoptera      Hymenoptera      Hymenoptera      Condylognatha   
-## [1081] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1085] Hymenoptera      Hymenoptera      Hymenoptera      Antliophora     
-## [1089] Hymenoptera      Antliophora      Polyneoptera     Antliophora     
-## [1093] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1097] Hymenoptera      Polyneoptera     Polyneoptera     Polyneoptera    
-## [1101] Amphiesmenoptera Hymenoptera      Palaeoptera      Antliophora     
-## [1105] Amphiesmenoptera Antliophora      Condylognatha    Condylognatha   
-## [1109] Hymenoptera      Condylognatha    Condylognatha    Neuropteroidea  
-## [1113] Condylognatha    Amphiesmenoptera Hymenoptera      Hymenoptera     
-## [1117] Hymenoptera      Polyneoptera     Polyneoptera     Polyneoptera    
-## [1121] Polyneoptera     Hymenoptera      Condylognatha    Antliophora     
-## [1125] Condylognatha    Hymenoptera      Condylognatha    Condylognatha   
-## [1129] Polyneoptera     Condylognatha    Condylognatha    Neuropteroidea  
-## [1133] Amphiesmenoptera Palaeoptera      Hymenoptera      Hymenoptera     
-## [1137] Hymenoptera      Hymenoptera      Condylognatha    Polyneoptera    
-## [1141] Neuropteroidea   Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1145] Amphiesmenoptera Polyneoptera     Amphiesmenoptera Amphiesmenoptera
-## [1149] Antliophora      Amphiesmenoptera Amphiesmenoptera Polyneoptera    
-## [1153] Neuropteroidea   Amphiesmenoptera Neuropteroidea   Polyneoptera    
-## [1157] Amphiesmenoptera Hymenoptera      Palaeoptera      Polyneoptera    
-## [1161] Antliophora      Antliophora      Antliophora      Antliophora     
-## [1165] Antliophora      Condylognatha    Antliophora      Polyneoptera    
-## [1169] Hymenoptera      Neuropteroidea   Condylognatha    Condylognatha   
-## [1173] Condylognatha    Condylognatha    Neuropteroidea   Neuropteroidea  
-## [1177] Neuropteroidea   Condylognatha    Condylognatha    Amphiesmenoptera
-## [1181] Antliophora      Antliophora      Neuropteroidea   Condylognatha   
-## [1185] Neuropteroidea   Antliophora      Hymenoptera      Hymenoptera     
-## [1189] Hymenoptera      Condylognatha    Polyneoptera     Condylognatha   
-## [1193] Neuropteroidea   Polyneoptera     Condylognatha    Amphiesmenoptera
-## [1197] Hymenoptera      Hymenoptera      Amphiesmenoptera Polyneoptera    
-## [1201] Condylognatha    Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1205] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-## [1209] Amphiesmenoptera Amphiesmenoptera Polyneoptera     Palaeoptera     
-## [1213] Palaeoptera      Apterygota       Polyneoptera     Polyneoptera    
-## [1217] Palaeoptera      Antliophora      Palaeoptera      Antliophora     
-## [1221] Neuropteroidea   Neuropteroidea   Condylognatha    Hymenoptera     
-## [1225] Hymenoptera      Antliophora      Condylognatha    Hymenoptera     
-## [1229] Amphiesmenoptera Amphiesmenoptera Polyneoptera     Amphiesmenoptera
-## [1233] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1237] Neuropteroidea   Hymenoptera      Neuropteroidea   Amphiesmenoptera
-## [1241] Condylognatha    Polyneoptera     Polyneoptera     Neuropteroidea  
-## [1245] Condylognatha    Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1249] Amphiesmenoptera Condylognatha    Amphiesmenoptera Hymenoptera     
-## [1253] Condylognatha    Condylognatha    Condylognatha    Condylognatha   
-## [1257] Amphiesmenoptera Condylognatha    Condylognatha    Amphiesmenoptera
-## [1261] Amphiesmenoptera Condylognatha    Palaeoptera      Condylognatha   
-## [1265] Condylognatha    Condylognatha    Amphiesmenoptera Amphiesmenoptera
-## [1269] Amphiesmenoptera Hymenoptera      Neuropteroidea   Polyneoptera    
-## [1273] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1277] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1281] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1285] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1289] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1293] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1297] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1301] Polyneoptera     Polyneoptera     Neuropteroidea   Polyneoptera    
-## [1305] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1309] Polyneoptera     Polyneoptera     Amphiesmenoptera Neuropteroidea  
-## [1313] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1317] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1321] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1325] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1329] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1333] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1337] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1341] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1345] Polyneoptera     Polyneoptera     Neuropteroidea   Neuropteroidea  
-## [1349] Neuropteroidea   Condylognatha    Neuropteroidea   Antliophora     
-## [1353] Neuropteroidea   Condylognatha    Hymenoptera      Hymenoptera     
-## [1357] Antliophora      Amphiesmenoptera Neuropteroidea   Neuropteroidea  
-## [1361] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-## [1365] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-## [1369] Antliophora      Hymenoptera      Hymenoptera      Condylognatha   
-## [1373] Neuropteroidea   Condylognatha    Polyneoptera     Neuropteroidea  
-## [1377] Antliophora      Amphiesmenoptera Polyneoptera     Condylognatha   
-## [1381] Hymenoptera      Antliophora      Hymenoptera      Antliophora     
-## [1385] Hymenoptera      Polyneoptera     Hymenoptera      Hymenoptera     
-## [1389] Hymenoptera      Antliophora      Condylognatha    Hymenoptera     
-## [1393] Neuropteroidea   Condylognatha    Hymenoptera      Hymenoptera     
-## [1397] Polyneoptera     Condylognatha    Antliophora      Hymenoptera     
-## [1401] Antliophora      Hymenoptera      Palaeoptera      Hymenoptera     
-## [1405] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1409] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1413] Hymenoptera      Hymenoptera      Antliophora      Palaeoptera     
-## [1417] Hymenoptera      Hymenoptera      Hymenoptera      Condylognatha   
-## [1421] Condylognatha    Condylognatha    Hymenoptera      Hymenoptera     
-## [1425] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1429] Antliophora      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1433] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1437] Hymenoptera      Antliophora      Condylognatha    Hymenoptera     
-## [1441] Hymenoptera      Antliophora      Hymenoptera      Neuropteroidea  
-## [1445] Hymenoptera      Hymenoptera      Amphiesmenoptera Amphiesmenoptera
-## [1449] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1453] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1457] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1461] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1465] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1469] Amphiesmenoptera Antliophora      Amphiesmenoptera Hymenoptera     
-## [1473] Hymenoptera      Palaeoptera      Palaeoptera      Hymenoptera     
-## [1477] Hymenoptera      Hymenoptera      Palaeoptera      Palaeoptera     
-## [1481] Antliophora      Hymenoptera      Condylognatha    Neuropteroidea  
-## [1485] Hymenoptera      Antliophora      Antliophora      Antliophora     
-## [1489] Antliophora      Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1493] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Polyneoptera    
-## [1497] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1501] Hymenoptera      Polyneoptera     Polyneoptera     Neuropteroidea  
-## [1505] Condylognatha    Neuropteroidea   Neuropteroidea   Antliophora     
-## [1509] Hymenoptera      Neuropteroidea   Condylognatha    Antliophora     
-## [1513] Antliophora      Neuropteroidea   Antliophora      Neuropteroidea  
-## [1517] Amphiesmenoptera Condylognatha    Neuropteroidea   Hymenoptera     
-## [1521] Hymenoptera      Neuropteroidea   Condylognatha    Neuropteroidea  
-## [1525] Condylognatha    Hymenoptera      Amphiesmenoptera Hymenoptera     
-## [1529] Polyneoptera     Hymenoptera      Neuropteroidea   Amphiesmenoptera
-## [1533] Neuropteroidea   Condylognatha    Hymenoptera      Hymenoptera     
-## [1537] Antliophora      Antliophora      Condylognatha    Antliophora     
-## [1541] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-## [1545] Neuropteroidea   Antliophora      Hymenoptera      Polyneoptera    
-## [1549] Antliophora      Condylognatha    Polyneoptera     Amphiesmenoptera
-## [1553] Neuropteroidea   Condylognatha    Hymenoptera      Polyneoptera    
-## [1557] Amphiesmenoptera Amphiesmenoptera Condylognatha    Polyneoptera    
-## [1561] Amphiesmenoptera Antliophora      Condylognatha    Amphiesmenoptera
-## [1565] Antliophora      Polyneoptera     Palaeoptera      Hymenoptera     
-## [1569] Condylognatha    Antliophora      Condylognatha    Condylognatha   
-## [1573] Polyneoptera     Polyneoptera     Hymenoptera      Antliophora     
-## [1577] Hymenoptera      Antliophora      Palaeoptera      Condylognatha   
-## [1581] Neuropteroidea   Amphiesmenoptera Antliophora      Hymenoptera     
-## [1585] Antliophora      Antliophora      Hymenoptera      Antliophora     
-## [1589] Antliophora      Antliophora      Antliophora      Antliophora     
-## [1593] Hymenoptera      Hymenoptera      Condylognatha    Condylognatha   
-## [1597] Antliophora      Antliophora      Hymenoptera      Antliophora     
-## [1601] Hymenoptera      Amphiesmenoptera Amphiesmenoptera Palaeoptera     
-## [1605] Condylognatha    Antliophora      Antliophora      Antliophora     
-## [1609] Condylognatha    Hymenoptera      Antliophora      Hymenoptera     
-## [1613] Antliophora      Antliophora      Antliophora      Antliophora     
-## [1617] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-## [1621] Antliophora      Antliophora      Hymenoptera      Condylognatha   
-## [1625] Hymenoptera      Antliophora      Antliophora      Condylognatha   
-## [1629] Antliophora      Neuropteroidea   Antliophora      Hymenoptera     
-## [1633] Antliophora      Condylognatha    Hymenoptera      Condylognatha   
-## [1637] Condylognatha    Neuropteroidea   Condylognatha    Condylognatha   
-## [1641] Neuropteroidea   Neuropteroidea   Condylognatha    Amphiesmenoptera
-## [1645] Amphiesmenoptera Amphiesmenoptera Neuropteroidea   Condylognatha   
-## [1649] Antliophora      Hymenoptera      Condylognatha    Neuropteroidea  
-## [1653] Condylognatha    Condylognatha    Condylognatha    Neuropteroidea  
-## [1657] Neuropteroidea   Neuropteroidea   Amphiesmenoptera Neuropteroidea  
-## [1661] Condylognatha    Antliophora      Neuropteroidea   Neuropteroidea  
-## [1665] Neuropteroidea   Polyneoptera     Neuropteroidea   Hymenoptera     
-## [1669] Antliophora      Antliophora      Antliophora      Condylognatha   
-## [1673] Condylognatha    Neuropteroidea   Neuropteroidea   Condylognatha   
-## [1677] Condylognatha    Amphiesmenoptera Hymenoptera      Condylognatha   
-## [1681] Condylognatha    Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-## [1685] Amphiesmenoptera Polyneoptera     Hymenoptera      Antliophora     
-## [1689] Hymenoptera      Polyneoptera     Polyneoptera     Neuropteroidea  
-## [1693] Neuropteroidea   Condylognatha    Neuropteroidea   Polyneoptera    
-## [1697] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-## [1701] Condylognatha    Neuropteroidea   Neuropteroidea   Amphiesmenoptera
-## [1705] Amphiesmenoptera Polyneoptera     Condylognatha    Neuropteroidea  
-## [1709] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Hymenoptera     
-## [1713] Neuropteroidea   Hymenoptera      Neuropteroidea   Hymenoptera     
-## [1717] Condylognatha    Neuropteroidea   Polyneoptera     Condylognatha   
-## [1721] Condylognatha    Neuropteroidea   Neuropteroidea   Neuropteroidea  
-## [1725] Neuropteroidea   Neuropteroidea   Neuropteroidea   Antliophora     
-## [1729] Neuropteroidea   Hymenoptera      Condylognatha    Condylognatha   
-## [1733] Hymenoptera      Neuropteroidea   Polyneoptera     Polyneoptera    
-## [1737] Condylognatha    Hymenoptera      Polyneoptera     Antliophora     
-## [1741] Antliophora      Neuropteroidea   Polyneoptera     Condylognatha   
-## [1745] Hymenoptera      Condylognatha    Antliophora      Hymenoptera     
-## [1749] Amphiesmenoptera Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-## [1753] Hymenoptera      Hymenoptera      Antliophora      Antliophora     
-## [1757] Hymenoptera      Condylognatha    Antliophora      Hymenoptera     
-## [1761] Amphiesmenoptera Amphiesmenoptera Antliophora      Neuropteroidea  
-## [1765] Neuropteroidea   Palaeoptera      Condylognatha    Neuropteroidea  
-## [1769] Amphiesmenoptera Polyneoptera     Condylognatha    Polyneoptera    
-## [1773] Amphiesmenoptera Antliophora      Antliophora      Condylognatha   
-## [1777] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-## [1781] Condylognatha    Amphiesmenoptera Neuropteroidea   Polyneoptera    
-## [1785] Amphiesmenoptera Amphiesmenoptera Hymenoptera      Hymenoptera     
-## [1789] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1793] Amphiesmenoptera Polyneoptera     Amphiesmenoptera Amphiesmenoptera
-## [1797] Condylognatha    Polyneoptera     Neuropteroidea   Condylognatha   
-## [1801] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1805] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1809] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1813] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1817] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-## [1821] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1825] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1829] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1833] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1837] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1841] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1845] Amphiesmenoptera Amphiesmenoptera Condylognatha    Amphiesmenoptera
-## [1849] Amphiesmenoptera Amphiesmenoptera Neuropteroidea   Amphiesmenoptera
-## [1853] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1857] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1861] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1865] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1869] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [1873] Amphiesmenoptera Amphiesmenoptera Condylognatha    Condylognatha   
-## [1877] Condylognatha    Antliophora      Antliophora      Polyneoptera    
-## [1881] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [1885] Polyneoptera     Hymenoptera      Polyneoptera     Polyneoptera    
-## [1889] Polyneoptera     Antliophora      Condylognatha    Neuropteroidea  
-## [1893] Neuropteroidea   Amphiesmenoptera Neuropteroidea   Amphiesmenoptera
-## [1897] Amphiesmenoptera Condylognatha    Condylognatha    Antliophora     
-## [1901] Condylognatha    Amphiesmenoptera Neuropteroidea   Polyneoptera    
-## [1905] Amphiesmenoptera Condylognatha    Condylognatha    Polyneoptera    
-## [1909] Hymenoptera      Hymenoptera      Neuropteroidea   Hymenoptera     
-## [1913] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1917] Palaeoptera      Palaeoptera      Hymenoptera      Condylognatha   
-## [1921] Condylognatha    Amphiesmenoptera Hymenoptera      Condylognatha   
-## [1925] Condylognatha    Condylognatha    Neuropteroidea   Hymenoptera     
-## [1929] Neuropteroidea   Condylognatha    Condylognatha    Neuropteroidea  
-## [1933] Antliophora      Condylognatha    Condylognatha    Polyneoptera    
-## [1937] Amphiesmenoptera Amphiesmenoptera Hymenoptera      Amphiesmenoptera
-## [1941] Amphiesmenoptera Amphiesmenoptera Condylognatha    Condylognatha   
-## [1945] Amphiesmenoptera Condylognatha    Neuropteroidea   Condylognatha   
-## [1949] Hymenoptera      Amphiesmenoptera Hymenoptera      Condylognatha   
-## [1953] Antliophora      Hymenoptera      Condylognatha    Hymenoptera     
-## [1957] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1961] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-## [1965] Hymenoptera      Antliophora      Antliophora      Hymenoptera     
-## [1969] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-## [1973] Hymenoptera      Antliophora      Antliophora      Hymenoptera     
-## [1977] Hymenoptera      Hymenoptera      Antliophora      Hymenoptera     
-## [1981] Hymenoptera      Hymenoptera      Hymenoptera      Condylognatha   
-## [1985] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [1989] Condylognatha    Antliophora      Hymenoptera      Hymenoptera     
-## [1993] Palaeoptera      Palaeoptera      Amphiesmenoptera Hymenoptera     
-## [1997] Hymenoptera      Hymenoptera      Polyneoptera     Antliophora     
-## [2001] Neuropteroidea   Amphiesmenoptera Hymenoptera      Polyneoptera    
-## [2005] Polyneoptera     Neuropteroidea   Neuropteroidea   Amphiesmenoptera
-## [2009] Hymenoptera      Hymenoptera      Hymenoptera      Hymenoptera     
-## [2013] Hymenoptera      Antliophora      Hymenoptera      Hymenoptera     
-## [2017] Hymenoptera      Condylognatha    Hymenoptera      Hymenoptera     
-## [2021] Amphiesmenoptera Hymenoptera      Antliophora      Hymenoptera     
-## [2025] Hymenoptera      Neuropteroidea   Antliophora      Neuropteroidea  
-## [2029] Condylognatha    Condylognatha    Hymenoptera      Hymenoptera     
-## [2033] Neuropteroidea   Hymenoptera      Hymenoptera      Antliophora     
-## [2037] Polyneoptera     Polyneoptera     Hymenoptera      Hymenoptera     
-## [2041] Hymenoptera      Hymenoptera      Hymenoptera      Polyneoptera    
-## [2045] Amphiesmenoptera Polyneoptera     Hymenoptera      Neuropteroidea  
-## [2049] Neuropteroidea   Condylognatha    Amphiesmenoptera Condylognatha   
-## [2053] Condylognatha    Condylognatha    Hymenoptera      Polyneoptera    
-## [2057] Hymenoptera      Hymenoptera      Hymenoptera      Amphiesmenoptera
-## [2061] Amphiesmenoptera Hymenoptera      Polyneoptera     Polyneoptera    
-## [2065] Polyneoptera     Hymenoptera      Hymenoptera      Hymenoptera     
-## [2069] Condylognatha    Hymenoptera      Antliophora      Hymenoptera     
-## [2073] Hymenoptera      Polyneoptera     Antliophora      Condylognatha   
-## [2077] Hymenoptera      Hymenoptera      Hymenoptera      Antliophora     
-## [2081] Hymenoptera      Hymenoptera      Hymenoptera      Polyneoptera    
-## [2085] Amphiesmenoptera Hymenoptera      Neuropteroidea   Amphiesmenoptera
-## [2089] Condylognatha    Amphiesmenoptera Neuropteroidea   Neuropteroidea  
-## [2093] Neuropteroidea   Condylognatha    Hymenoptera      Polyneoptera    
-## [2097] Condylognatha    Polyneoptera     Hymenoptera      Amphiesmenoptera
-## [2101] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2105] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Neuropteroidea  
-## [2109] Amphiesmenoptera Antliophora      Hymenoptera      Amphiesmenoptera
-## [2113] Antliophora      Amphiesmenoptera Condylognatha    Amphiesmenoptera
-## [2117] Polyneoptera     Polyneoptera     Polyneoptera     Polyneoptera    
-## [2121] Polyneoptera     Polyneoptera     Amphiesmenoptera Amphiesmenoptera
-## [2125] Polyneoptera     Hymenoptera      Amphiesmenoptera Hymenoptera     
-## [2129] Amphiesmenoptera Amphiesmenoptera Neuropteroidea   Condylognatha   
-## [2133] Neuropteroidea   Hymenoptera      Condylognatha    Condylognatha   
-## [2137] Condylognatha    Neuropteroidea   Hymenoptera      Condylognatha   
-## [2141] Condylognatha    Hymenoptera      Hymenoptera      Hymenoptera     
-## [2145] Hymenoptera      Hymenoptera      Polyneoptera     Polyneoptera    
-## [2149] Neuropteroidea   Hymenoptera      Hymenoptera      Hymenoptera     
-## [2153] Hymenoptera      Hymenoptera      Amphiesmenoptera Amphiesmenoptera
-## [2157] Amphiesmenoptera Condylognatha    Polyneoptera     Hymenoptera     
-## [2161] Polyneoptera     Amphiesmenoptera Neuropteroidea   Hymenoptera     
-## [2165] Palaeoptera      Hymenoptera      Hymenoptera      Antliophora     
-## [2169] Condylognatha    Neuropteroidea   Amphiesmenoptera Amphiesmenoptera
-## [2173] Hymenoptera      Polyneoptera     Amphiesmenoptera Amphiesmenoptera
-## [2177] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2181] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2185] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2189] Amphiesmenoptera Amphiesmenoptera Hymenoptera      Condylognatha   
-## [2193] Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2197] Palaeoptera      Amphiesmenoptera Amphiesmenoptera Amphiesmenoptera
-## [2201] Antliophora      Condylognatha    Amphiesmenoptera Antliophora     
-## [2205] Antliophora      Hymenoptera      Hymenoptera      Polyneoptera    
-## [2209] Polyneoptera     Antliophora      Antliophora      Amphiesmenoptera
-## [2213] Antliophora      Antliophora      Hymenoptera     
-## 9 Levels: Amphiesmenoptera Antliophora Apterygota ... Psocodea
-```
-#Confusion matrix from model K=8
+# Confusion matrix from model K=8
 
 ```r
 confusionMatrix(prediction2,tableCompare)
