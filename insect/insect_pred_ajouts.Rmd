@@ -47,8 +47,6 @@ insectSizeGroup_less<-insectSizeGroup_less[which(insectSizeGroup_less$group != '
 table(insectSizeGroup_less$group)
 ```
 
-
-
 # No NA
 
 ```{r}
@@ -67,15 +65,21 @@ insectSizeMeans <- insectSizeClean %>%
 #head(insectSizeMeans)
 ```
 
+# Evening out the data
+```{r}
+insectSizeMeans_up <- upSample(x=insectSizeMeans, y=as_factor(insectSizeMeans$group), list=FALSE)
+table(insectSizeMeans_up$group)
+```
+
 # Training Set
 ```{r}
-insectSizeTrain <- insectSizeMeans %>%
+insectSizeTrain <- insectSizeMeans_up %>%
                   select("logX1", "logX2")
 
 
 #head(insectSizeTrain)
 
-insectSizeLabels <- insectSizeMeans$group
+insectSizeLabels <- insectSizeMeans_up$group
 ```
 
 # Model
@@ -97,8 +101,8 @@ predict(object = model_knn, newdata = newObs)
 # Visualization
 
 ```{r}
-new_logX1 <- seq(from = min(insectSizeTrain$logX1), to = max(insectSizeTrain$logX1), length.out = 150)
-new_logX2 <- seq(from = min(insectSizeTrain$logX2), to = max(insectSizeTrain$logX2), length.out = 150)
+new_logX1 <- seq(from = min(insectSizeTrain$logX1), to = max(insectSizeTrain$logX1), length.out = 200)
+new_logX2 <- seq(from = min(insectSizeTrain$logX2), to = max(insectSizeTrain$logX2), length.out = 200)
 
 grid_data <- expand_grid(logX1 = new_logX1,logX2 = new_logX2)
 
@@ -115,16 +119,16 @@ insectSizeMeans %>%
 # Data partition
 ```{r}
 set.seed(500) # makes the random selection of rows reproducible
-train <- insectSizeMeans$group %>%
+train <- insectSizeMeans_up$group %>%
           createDataPartition(p = 0.70, list = FALSE)
 #head(train)
 
-insectSizeTrain2 <- insectSizeMeans[train,]%>%
+insectSizeTrain2 <- insectSizeMeans_up[train,]%>%
                         select("logX1", "logX2")
-insectSizeTrainTest2 <- insectSizeMeans[-train,]%>%
+insectSizeTrainTest2 <- insectSizeMeans_up[-train,]%>%
                           select("logX1", "logX2")
 
-insectSizeLabels2 <- insectSizeMeans[train,]$group
+insectSizeLabels2 <- insectSizeMeans_up[train,]$group
                         #select('group')
 
 #head(insectSizeLabels2)
@@ -149,7 +153,7 @@ head(prediction)
 ```{r}
 
 # Convert character vector to factor
-comp = insectSizeMeans[-train,]$group 
+comp = insectSizeMeans_up[-train,]$group 
         #%>%
        #select('group')
 tableCompare<- factor(comp) # Laisser la fonction décider des levels pour les mettre en ordre
@@ -208,9 +212,22 @@ prediction2 = predict(object = model_knn3, newdata = insectSizeTrainTest2)
 ```{r}
 confusionMatrix(prediction2,tableCompare)
 ```
+```{r}
 
 
+new_logX1_2 <- seq(from = min(insectSizeTrain$logX1), to = max(insectSizeTrain$logX1), length.out = 200)
+new_logX2_2 <- seq(from = min(insectSizeTrain$logX2), to = max(insectSizeTrain$logX2), length.out = 200)
 
-###Faire un graphique de distribution des prédictions, balancer les nombres d'observations
+grid_data_2 <- expand_grid(logX1 = new_logX1_2,logX2 = new_logX2_2)
 
+grid_data_2$group <- predict(object = model_knn3, newdata = as.data.frame(grid_data_2))
+
+insectSizeMeans %>% 
+  ggplot(aes(x = logX1, y = logX2, color = group, fill = group)) + 
+  geom_point(data = grid_data_2, alpha = 0.5)+ 
+  geom_point(alpha = 0.7, pch = 21, color = "black")+ 
+  scale_color_brewer(type = "qual")
+  scale_fill_brewer(type = "qual")
+
+```
 
